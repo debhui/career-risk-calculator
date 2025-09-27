@@ -59,6 +59,7 @@ export default function ResumeUpload() {
         onChange={handleUpload}
         className="rounded-lg bg-indigo-600 px-4 py-2 text-sm font-semibold text-white shadow-md transition-colors hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 focus:ring-offset-gray-900"
       />
+      {progress > 0 && <p>Upload: {progress}%</p>}
       <p className="mt-2 text-xs text-gray-500">(PDF, DOCX only. Max 5MB)</p>
     </div>
   );

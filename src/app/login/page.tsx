@@ -2,7 +2,7 @@
 
 import { supabase } from "@/lib/supabaseClient";
 import Link from "next/link";
-import { Lock, User, Chrome } from "lucide-react";
+import { Chrome } from "lucide-react";
 
 export default function Login() {
   const handleLogin = async () => {
@@ -26,7 +26,7 @@ export default function Login() {
     <div className="flex items-center justify-center  p-4">
       <div className="w-full max-w-md space-y-8 rounded-xl bg-gray-800 p-8 shadow-2xl">
         <div className="text-center">
-          <h2 className="mt-6 text-3xl font-extrabold text-gray-900">Sign in to your account</h2>
+          <h2 className="mt-6 text-3xl font-extrabold text-white">Sign in to your account</h2>
           <p className="mt-2 text-sm text-gray-600">
             Or{" "}
             <Link href="/register" className="font-medium text-indigo-600 hover:text-indigo-500">

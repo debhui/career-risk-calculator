@@ -60,7 +60,7 @@ export async function POST(req: Request) {
     const enc = encryptJSON(tokenPayload);
 
     // 5. Upsert profile row
-    const { data: _data, error: dbError } = await supabaseAdmin
+    const { error: dbError } = await supabaseAdmin // data: _data,
       .from("profiles")
       .upsert(
         {

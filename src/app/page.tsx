@@ -1,4 +1,4 @@
-import { ShieldHalf, Chrome } from "lucide-react";
+import { ShieldHalf } from "lucide-react";
 import Login from "./login/page";
 
 export default function CareerRiskCalculatorHomePage() {

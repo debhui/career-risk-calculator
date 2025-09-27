@@ -32,7 +32,7 @@ export async function POST(req: NextRequest) {
     // Upload to Supabase storage
     const buffer = Buffer.from(await file.arrayBuffer());
     const fileName = `${userId}/${randomUUID()}-${file.name}`;
-    const { data: storageData, error: storageError } = await supabaseAdmin.storage
+    const { error: storageError } = await supabaseAdmin.storage // data: storageData,
       .from("resumes")
       .upload(fileName, buffer, {
         contentType: file.type,
