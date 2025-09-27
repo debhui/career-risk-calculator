@@ -8,7 +8,7 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: 'Missing resume text' }, { status: 400 });
     }
 
-    const genAI = new GoogleGenerativeAI('AIzaSyA4yY1iXx7i_6ASVu5N7CGEd_y97MfbPHU');
+    const genAI = new GoogleGenerativeAI(process.env.GOOGLE_API_KEY!);
     const model = genAI.getGenerativeModel({ model: 'gemini-1.5-pro' });
 
     const prompt = `
