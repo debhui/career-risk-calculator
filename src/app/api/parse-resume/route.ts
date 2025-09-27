@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { geminiGenerate } from '../../lib/geminiClient';
+import { geminiGenerate } from '../../lib/geminiClient.ts';
 
 
 // Initialize Google GenAI client
