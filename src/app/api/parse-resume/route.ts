@@ -2,11 +2,6 @@ import { NextRequest, NextResponse } from 'next/server';
 import { geminiGenerate } from '../../../lib/geminiClient';
 
 
-// Initialize Google GenAI client
-const client = new geminiGenerate({
-  apiKey: process.env.GOOGLE_API_KEY, // Make sure this is set in .env.local
-});
-
 export async function POST(req: NextRequest) {
   try {
     const { resumeText } = await req.json();
