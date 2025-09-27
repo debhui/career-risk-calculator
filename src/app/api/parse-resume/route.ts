@@ -3,7 +3,7 @@ import { geminiGenerate } from '../../../lib/geminiClient';
 
 
 // Initialize Google GenAI client
-const client = new GoogleGenAI({
+const client = new geminiGenerate({
   apiKey: process.env.GOOGLE_API_KEY, // Make sure this is set in .env.local
 });
 
