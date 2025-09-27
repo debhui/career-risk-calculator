@@ -1,0 +1,14 @@
+create table public.profiles (
+  id uuid primary key references auth.users on delete cascade,
+  full_name text,
+  email text,
+  avatar_url text,
+  google_sub text unique, -- provider ID (sub)
+  consent_given boolean default false,
+  consent_accepted_at timestamptz,
+  encrypted_tokens text,
+  created_at timestamptz default now(),
+  updated_at timestamptz default now()
+);
+
+create index on public.profiles (email);
