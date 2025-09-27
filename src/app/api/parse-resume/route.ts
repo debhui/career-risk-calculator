@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { GoogleGenAI } from 'google-genai'; // Default import
+import { geminiGenerate } from '../../lib/gemini';
 
 
 // Initialize Google GenAI client
@@ -35,12 +35,7 @@ Extract the following fields and return ONLY valid JSON matching this schema:
 Resume Text:
 ${resumeText}
 `;
-    // Call Google Gemini Text API
-    const response = await client.text.generate({
-      model: 'gemini-2.5-flash', // You can change the model if needed
-      contents: prompt
-    });
-
+    const response = await geminiGenerate(prompt)
     // Gemini response
     const parsedText = response.text;
 
