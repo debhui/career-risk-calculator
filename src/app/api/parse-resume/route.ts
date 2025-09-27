@@ -32,7 +32,7 @@ ${resumeText}
 `;
     const response = await geminiGenerate(prompt)
     // Gemini response
-    const parsedText = response.text;
+    const parsedText = response;
 
     // Try parsing JSON from the AI output
     let parsedJSON;
