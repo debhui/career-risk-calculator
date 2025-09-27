@@ -2,7 +2,6 @@
 
 import { supabase } from "@/lib/supabaseClient";
 import { Chrome } from "lucide-react";
-("use client");
 
 export default function Login() {
   const handleLogin = async () => {
