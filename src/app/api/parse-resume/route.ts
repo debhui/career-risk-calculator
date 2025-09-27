@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import GoogleGenAI from '@google/genai'; // Default import
+import { GoogleGenAI } from 'google-genai'; // Default import
 
 
 // Initialize Google GenAI client
