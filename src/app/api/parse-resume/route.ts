@@ -1,8 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { Client } from '@google/genai';
+import GoogleGenAI from '@google/genai'; // Default import
+
 
 // Initialize Google GenAI client
-const client = new Client({
+const client = new GoogleGenAI({
   apiKey: process.env.GOOGLE_API_KEY, // Make sure this is set in .env.local
 });
 
