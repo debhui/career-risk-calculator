@@ -17,7 +17,8 @@
     "react": "19.1.0",
     "react-dom": "19.1.0",
     "react-hook-form": "^7.63.0",
-    "zod": "^4.1.11"
+    "zod": "^4.1.11",
+    "@google/generative-ai": "^1.0.0",
   },
   "devDependencies": {
     "@eslint/eslintrc": "^3",
@@ -28,6 +29,7 @@
     "eslint": "^9",
     "eslint-config-next": "15.5.4",
     "tailwindcss": "^4",
-    "typescript": "^5"
+    "typescript": "^5",
+    "@google/generative-ai": "^1.0.0",
   }
 }
