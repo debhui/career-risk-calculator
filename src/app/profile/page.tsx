@@ -3,7 +3,6 @@
 import React, { useEffect, useState } from "react";
 import { User as AuthUser } from "@supabase/supabase-js";
 import { User as UserIcon, CheckCircle, XCircle, Settings, FileText } from "lucide-react";
-import { GlobalLayout } from "@/components/GlobalLayout";
 import { supabase } from "@/lib/supabaseClient";
 import Image from "next/image";
 
@@ -180,6 +179,8 @@ export default function ProfilePage() {
                 (e.target as HTMLImageElement).src =
                   "https://placehold.co/64x64/2D3748/A0AEC0?text=P";
               }}
+              width={100}
+              height={100}
             />
           ) : (
             <div className="w-16 h-16 rounded-full bg-indigo-600 flex items-center justify-center text-white text-3xl font-bold mr-6 shrink-0">
@@ -239,10 +240,8 @@ export default function ProfilePage() {
   };
 
   return (
-    <GlobalLayout>
-      <div className="min-h-screen text-white py-12 px-4 sm:px-6 lg:px-8">
-        <div className="max-w-3xl mx-auto">{renderContent()}</div>
-      </div>
-    </GlobalLayout>
+    <div className="text-white py-12 px-4 sm:px-6 lg:px-8">
+      <div className="max-w-3xl mx-auto">{renderContent()}</div>
+    </div>
   );
 }

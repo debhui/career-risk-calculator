@@ -1,3 +1,4 @@
+// auth/callback/page.tsx
 "use client";
 
 import { useEffect } from "react";
@@ -35,7 +36,7 @@ export default function CallbackPage() {
         } else if (!profile.onboarding_completed) {
           router.push("/onboarding"); // step 2 if needed
         } else {
-          router.push("/assessment");
+          router.push("/assessment-profile");
         }
       }
     });
@@ -62,5 +63,9 @@ export default function CallbackPage() {
   //     };
   //   }, [router]);
 
-  return <p>Signing you in...</p>;
+  return (
+    <div className="flex flex-col items-center p-4 sm:p-6 font-inter">
+      <p className="text-white">Signing you in...</p>
+    </div>
+  );
 }

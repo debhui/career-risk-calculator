@@ -4,7 +4,7 @@ import Login from "./login/page";
 export default function CareerRiskCalculatorHomePage() {
   return (
     // Dark, analytical background with a subtle fixed background pattern for depth
-    <div className="flex min-h-screen flex-col items-center justify-center bg-gray-900 p-4">
+    <div className="flex min-h-[calc(100vh-158px)] flex-col items-center justify-center bg-gray-900 p-4">
       {/* Header/Branding */}
       <header className="mb-12 text-center">
         {/* Logo and App Title */}
