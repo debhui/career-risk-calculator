@@ -1,7 +1,7 @@
 // components/Sidebar.tsx
 "use client";
 
-import { Home, ShieldCheck, Settings, X } from "lucide-react";
+import { ShieldCheck, Settings, X } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 

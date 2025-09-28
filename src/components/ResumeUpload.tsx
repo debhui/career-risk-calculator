@@ -80,7 +80,7 @@ export default function ResumeUpload() {
           throw new Error("Failed to get signed upload URL.");
         }
 
-        const { url, path } = await res.json();
+        const { url } = await res.json();
 
         // 4. Upload with progress
         // Note: The mock uploadWithProgress simulates the actual upload logic

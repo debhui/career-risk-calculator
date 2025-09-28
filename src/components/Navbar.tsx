@@ -1,4 +1,4 @@
-import { ShieldCheck, LogOut, Code, X, Settings, Menu } from "lucide-react";
+import { Code, Menu } from "lucide-react";
 import { UserMenu } from "./UserMenu";
 
 interface NavbarProps {

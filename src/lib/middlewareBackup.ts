@@ -2,10 +2,10 @@
 import { NextResponse, type NextRequest } from "next/server";
 import { createServerClient } from "@supabase/ssr";
 import { publicRoutes } from "@/lib/routeConfig";
-import { supabaseAdmin } from "@/lib/supabaseAdmin.server";
+// import { supabaseAdmin } from "@/lib/supabaseAdmin.server";
 export async function middleware(request: NextRequest) {
   // Create a response object that will be used to set cookies.
-  let response = NextResponse.next({ request });
+  const response = NextResponse.next({ request });
 
   // Create a Supabase client configured to read and update cookies.
   const supabase = createServerClient(
