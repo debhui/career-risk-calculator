@@ -1,25 +1,57 @@
-// src/lib/geminiClient.ts
-const GEMINI_KEY = process.env.GEMINI_API_KEY1;
-const GEMINI_URL =
-  process.env.GEMINI_API_URL ||
-  'https://generative.googleapis.com/v1/models/text-bison-001:generate';
+'use client';
 
-export const geminiGenerate = async (text: string) => {
-  if (!GEMINI_KEY) {
-    console.error('GEMINI_API_KEY missing');
-    return 'No insights available (Gemini key missing).';
-  }
+import { useState } from 'react';
 
-  // fetch is available globally in server-side code
-  const response = await fetch(GEMINI_URL, {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-      Authorization: `Bearer ${GEMINI_KEY}`,
-    },
-    body: JSON.stringify({ prompt: text }),
-  });
+export default function ResumeUI() {
+  const [resumeText, setResumeText] = useState('');
+  const [output, setOutput] = useState('');
 
-  const data = await response.json();
-  return data?.output?.[0]?.content || 'No output from Gemini';
-};
+  const handleSubmit = async () => {
+    try {
+      const res = await fetch('/api/parse-resume', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ resumeText }),
+      });
+      const data = await res.json();
+      setOutput(JSON.stringify(data, null, 2));
+    } catch (err) {
+      console.error(err);
+      setOutput('Error calling API');
+    }
+  };
+
+  return (
+    <div style={{ padding: 30, fontFamily: 'Arial, sans-serif' }}>
+      <h1>Resume Parser</h1>
+      <textarea
+        rows={10}
+        cols={60}
+        value={resumeText}
+        placeholder="Paste resume text here..."
+        onChange={(e) => setResumeText(e.target.value)}
+        style={{ display: 'block', marginBottom: 15, padding: 10, width: '100%', maxWidth: 600 }}
+      />
+      <button
+        onClick={handleSubmit}
+        style={{ padding: '10px 20px', fontSize: 16, cursor: 'pointer' }}
+      >
+        Parse Resume
+      </button>
+      {output && (
+        <pre
+          style={{
+            marginTop: 25,
+            padding: 15,
+            backgroundColor: '#f0f0f0',
+            borderRadius: 5,
+            maxWidth: 600,
+            overflowX: 'auto',
+          }}
+        >
+          {output}
+        </pre>
+      )}
+    </div>
+  );
+}
