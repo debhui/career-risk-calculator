@@ -1,12 +1,14 @@
 import React, { useState, useRef, useEffect, useCallback } from "react";
 
+import { Triangle } from "lucide-react";
+
 // --- Type Definitions ---
 interface CustomSelectProps {
   id: string;
   value: string;
   onChange: (v: string) => void;
   options: string[];
-  label: string;
+  label?: string;
 }
 
 /**
@@ -68,7 +70,7 @@ const CustomSelect: React.FC<CustomSelectProps> = ({ id, value, onChange, option
   // --- Render Logic ---
 
   return (
-    <div className="relative w-full max-w-sm" ref={selectRef}>
+    <div className="relative w-full " ref={selectRef}>
       <label htmlFor={id} className="block text-sm font-medium text-gray-300 mb-1">
         {label}
       </label>
@@ -88,23 +90,13 @@ const CustomSelect: React.FC<CustomSelectProps> = ({ id, value, onChange, option
 
         {/* Dropdown Arrow Icon (Chevron) */}
         <span
-          className={`absolute inset-y-0 right-0 top-5 flex items-center pr-2 pointer-events-none transition-transform duration-200 ${
-            isOpen ? "rotate-180" : "rotate-0"
-          }`}
+          className={`absolute right-2 top-4 flex items-center pr-2 pointer-events-none `} //  ${
         >
-          <svg
-            className="h-5 w-5 text-gray-400"
-            xmlns="http://www.w3.org/2000/svg"
-            viewBox="0 0 20 20"
-            fill="currentColor"
-            aria-hidden="true"
-          >
-            <path
-              fillRule="evenodd"
-              d="M5.23 7.21a.75.75 0 011.06.02L10 10.99l3.71-3.76a.75.75 0 111.04 1.08l-4.25 4.31a.75.75 0 01-1.06 0L5.23 8.29a.75.75 0 010-1.08z"
-              clipRule="evenodd"
-            />
-          </svg>
+          <Triangle
+            className={`transition-transform duration-300 ${isOpen ? "rotate-0" : "-rotate-180"}`}
+            fill="white"
+            size={10}
+          />
         </span>
       </button>
 

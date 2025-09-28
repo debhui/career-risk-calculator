@@ -9,27 +9,29 @@
     "lint": "eslint"
   },
   "dependencies": {
+    "@google/generative-ai": "^0.15.0",
     "@hookform/resolvers": "^5.2.2",
     "@supabase/ssr": "^0.7.0",
     "@supabase/supabase-js": "^2.58.0",
     "lucide-react": "^0.544.0",
     "next": "15.5.4",
+    "pdf-parse": "^1.1.1",
     "react": "19.1.0",
     "react-dom": "19.1.0",
     "react-hook-form": "^7.63.0",
-    "zod": "^4.1.11",
-    "@google/generative-ai": "^0.15.0"
+    "zod": "^4.1.11"
   },
   "devDependencies": {
     "@eslint/eslintrc": "^3",
+    "@google/generative-ai": "^0.15.0",
     "@tailwindcss/postcss": "^4",
+    "@types/next": "^8.0.7",
     "@types/node": "^20",
     "@types/react": "^19",
     "@types/react-dom": "^19",
     "eslint": "^9",
     "eslint-config-next": "15.5.4",
     "tailwindcss": "^4",
-    "typescript": "^5",
-    "@google/generative-ai": "^0.15.0"
+    "typescript": "^5"
   }
 }

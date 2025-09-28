@@ -1,0 +1,71 @@
+"use client";
+import { useState } from "react";
+import pdfParse from "pdf-parse";
+
+export default function Home() {
+  const [file, setFile] = useState<File | null>(null);
+  const [jsonResult, setJsonResult] = useState<any>(null);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setFile(e.target.files?.[0] || null);
+  };
+
+  const handleSubmit = async () => {
+    if (!file) return;
+    setLoading(true);
+    setError(null);
+
+    try {
+      // Extract text from PDF in browser
+      const buffer = await file.arrayBuffer();
+      const { text } = await pdfParse(Buffer.from(buffer));
+
+      const res = await fetch("/api/parse-resume", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ resumeText: text }),
+      });
+
+      if (!res.ok) throw new Error("API call failed");
+      const data = await res.json();
+      setJsonResult(data);
+    } catch (err: any) {
+      setError(err.message);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  return (
+    <main style={{ maxWidth: 800, margin: "2rem auto", fontFamily: "sans-serif" }}>
+      <h1>Resume Parser</h1>
+
+      <input type="file" accept="application/pdf" onChange={handleFileChange} />
+      <button
+        style={{ marginLeft: "1rem", padding: "0.5rem 1rem" }}
+        onClick={handleSubmit}
+        disabled={!file || loading}
+      >
+        {loading ? "Parsing…" : "Submit"}
+      </button>
+
+      {error && <p style={{ color: "red" }}>Error: {error}</p>}
+
+      {jsonResult && (
+        <pre
+          style={{
+            marginTop: "2rem",
+            padding: "1rem",
+            background: "#f0f0f0",
+            whiteSpace: "pre-wrap",
+            wordBreak: "break-word",
+          }}
+        >
+          {JSON.stringify(jsonResult, null, 2)}
+        </pre>
+      )}
+    </main>
+  );
+}
