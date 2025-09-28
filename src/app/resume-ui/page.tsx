@@ -1,71 +1,25 @@
-'use client';
+// src/lib/geminiClient.ts
+const GEMINI_KEY = process.env.GEMINI_API_KEY1;
+const GEMINI_URL =
+  process.env.GEMINI_API_URL ||
+  'https://generative.googleapis.com/v1/models/text-bison-001:generate';
 
-import { useState } from 'react';
+export const geminiGenerate = async (text: string) => {
+  if (!GEMINI_KEY) {
+    console.error('GEMINI_API_KEY missing');
+    return 'No insights available (Gemini key missing).';
+  }
 
-export default function ResumeUI() {
-  const [resumeText, setResumeText] = useState('');
-  const [output, setOutput] = useState('');
+  // fetch is available globally in server-side code
+  const response = await fetch(GEMINI_URL, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      Authorization: `Bearer ${GEMINI_KEY}`,
+    },
+    body: JSON.stringify({ prompt: text }),
+  });
 
-  const handleSubmit = async () => {
-    try {
-      const res = await fetch('/api/parse-resume', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ resumeText }),
-      });
-      const data = await res.json();
-      setOutput(JSON.stringify(data, null, 2));
-    } catch (err) {
-      setOutput('Error calling API');
-      console.error(err);
-    }
-  };
-
-  return (
-    <div style={{ padding: 30, fontFamily: 'Arial, sans-serif' }}>
-      <h1 style={{ marginBottom: 20 }}>Resume Parser</h1>
-
-      <textarea
-        rows={10}
-        cols={60}
-        value={resumeText}
-        placeholder="Paste resume text here..."
-        onChange={(e) => setResumeText(e.target.value)}
-        style={{
-          display: 'block',
-          marginBottom: 15,
-          padding: 10,
-          fontSize: 14,
-          width: '100%',
-          maxWidth: 600,
-        }}
-      />
-
-      <button
-        onClick={handleSubmit}
-        style={{
-          padding: '10px 20px',
-          fontSize: 16,
-          cursor: 'pointer',
-        }}
-      >
-        Parse Resume
-      </button>
-
-      {output && (
-        <pre
-          style={{
-            marginTop: 25,
-            padding: 15,
-            backgroundColor: '#f0f0f0',
-            borderRadius: 5,
-            overflowX: 'auto',
-            maxWidth: 600,
-          }}
-        >
-          {output}
-        </pre>
-      )}
-    </div>
-  );
-}
+  const data = await response.json();
+  return data?.output?.[0]?.content || 'No output from Gemini';
+};
