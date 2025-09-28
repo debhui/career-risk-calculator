@@ -2,7 +2,8 @@
 const GEMINI_KEY = process.env.GEMINI_API_KEY1;
 const GEMINI_URL = process.env.GEMINI_API_URL || 'https://generative.googleapis.com/v1/models/text-bison-001:generate';
 export async function geminiGenerate(prompt: string): Promise<string> {
-  
+  const key = GEMINI_KEY;
+  const url=  GEMINI_URL;
   if (!key) {
     console.error('GEMINI_API_KEY missing')
     return 'No insights available (Gemini key missing).'
