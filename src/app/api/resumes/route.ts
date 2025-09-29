@@ -1,6 +1,6 @@
 // api/resumes/route.ts
 import { NextRequest, NextResponse } from "next/server";
-import { supabaseAdmin } from "@/lib/supabaseAdmin.server";
+import { createSupabaseServerClient } from "@/lib/supabase/server";
 import { randomUUID } from "crypto";
 
 export async function POST(req: NextRequest) {
@@ -32,7 +32,8 @@ export async function POST(req: NextRequest) {
     // Upload to Supabase storage
     const buffer = Buffer.from(await file.arrayBuffer());
     const fileName = `${userId}/${randomUUID()}-${file.name}`;
-    const { error: storageError } = await supabaseAdmin.storage // data: storageData,
+    const supabase = await createSupabaseServerClient();
+    const { error: storageError } = await supabase.storage // data: storageData,
       .from("resumes")
       .upload(fileName, buffer, {
         contentType: file.type,
@@ -41,10 +42,10 @@ export async function POST(req: NextRequest) {
     if (storageError) throw storageError;
 
     // Public URL
-    const { data: publicUrl } = supabaseAdmin.storage.from("resumes").getPublicUrl(fileName);
+    const { data: publicUrl } = supabase.storage.from("resumes").getPublicUrl(fileName);
 
     // Insert metadata into DB
-    const { error: dbError } = await supabaseAdmin.from("resumes").insert({
+    const { error: dbError } = await supabase.from("resumes").insert({
       user_id: userId,
       file_name: file.name,
       file_url: publicUrl.publicUrl,

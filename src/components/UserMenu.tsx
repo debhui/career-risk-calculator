@@ -5,7 +5,8 @@ import { useState, useRef, useEffect } from "react";
 import { LogOut, User, ChevronDown } from "lucide-react";
 import Link from "next/link";
 import Image from "next/image";
-import { supabase } from "@/lib/supabaseClient";
+// import { supabase } from "@/lib/supabaseClient";
+import { createSupabaseClient } from "@/lib/supabase/browser";
 
 interface UserMenuProps {
   userEmail?: string;
@@ -15,7 +16,7 @@ interface UserMenuProps {
 export function UserMenu({ userEmail, avatarUrl }: UserMenuProps) {
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
-
+  const supabase = createSupabaseClient();
   // Close dropdown when clicking outside
   useEffect(() => {
     function handleClickOutside(event: MouseEvent) {

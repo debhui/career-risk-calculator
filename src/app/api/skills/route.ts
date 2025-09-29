@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { supabaseAdmin } from "@/lib/supabaseAdmin.server";
+import { createSupabaseServerClient } from "@/lib/supabase/server";
 
 interface SkillPayload {
   userId: string;
@@ -16,10 +16,11 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "Missing userId" }, { status: 400 });
     }
 
+    const supabase = await createSupabaseServerClient();
     // Insert skills (upsert to avoid duplicates)
     if (skillIds?.length > 0) {
       const rows = skillIds.map(id => ({ user_id: userId, skill_id: id }));
-      const { error: skillError } = await supabaseAdmin
+      const { error: skillError } = await supabase
         .from("user_ai_skills")
         .upsert(rows, { onConflict: "user_id,skill_id" });
 
@@ -29,7 +30,7 @@ export async function POST(req: NextRequest) {
     // Insert projects
     if (projects?.length > 0) {
       const rows = projects.map(name => ({ user_id: userId, project_name: name }));
-      const { error: projectError } = await supabaseAdmin.from("user_ai_projects").insert(rows);
+      const { error: projectError } = await supabase.from("user_ai_projects").insert(rows);
 
       if (projectError) throw projectError;
     }

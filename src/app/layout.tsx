@@ -6,7 +6,8 @@ import "./globals.css";
 import Footer from "@/components/Footer";
 import Navbar from "@/components/Navbar";
 import Sidebar from "@/components/Sidebar";
-import { supabase } from "@/lib/supabaseClient";
+// import { supabase } from "@/lib/supabaseClient";
+import { createSupabaseClient } from "@/lib/supabase/browser";
 
 export default function RootLayout({
   children,
@@ -18,33 +19,28 @@ export default function RootLayout({
   const [avatarUrl, setAvatarUrl] = useState<string>("");
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
 
-  async function checkAuthentication() {
-    const {
-      data: { user },
-      error,
-    } = await supabase.auth.getUser();
-
-    if (error) {
-      setIsAuthenticated(false);
-      setUserEmail("");
-      setAvatarUrl("");
-      return null;
-    }
-    if (user) {
-      setIsAuthenticated(true);
-      setUserEmail(user?.email || "");
-      setAvatarUrl(user?.user_metadata?.avatar_url);
-      return user;
-    } else {
-      setIsAuthenticated(false);
-      setUserEmail("");
-      setAvatarUrl("");
-      return null;
-    }
-  }
   useEffect(() => {
+    async function checkAuthentication() {
+      const supabase = createSupabaseClient();
+      const {
+        data: { user },
+      } = await supabase.auth.getUser();
+
+      if (user) {
+        setIsAuthenticated(true);
+        setUserEmail(user?.email || "");
+        setAvatarUrl(user?.user_metadata?.avatar_url);
+        return user;
+      } else {
+        setIsAuthenticated(false);
+        setUserEmail("");
+        setAvatarUrl("");
+        return null;
+      }
+    }
+
     checkAuthentication();
-  }, [checkAuthentication]);
+  }, []);
 
   // const isAuthenticated = !!user;
   return (

@@ -1,7 +1,6 @@
-// pages/api/revoke.ts
+// pages/api/revoke/route.ts
 import { NextResponse } from "next/server";
-// Assuming 'supabaseAdmin' is the server-side client with Service Role key access
-import { supabaseAdmin } from "@/lib/supabaseAdmin.server";
+import { createSupabaseServerClient } from "@/lib/supabase/server";
 
 export async function POST(req: Request) {
   try {
@@ -10,8 +9,8 @@ export async function POST(req: Request) {
       return new NextResponse(JSON.stringify({ error: "no auth" }), { status: 401 });
     }
     const token = authHeader.split(" ")[1];
-
-    const { data: userResp, error } = await supabaseAdmin.auth.getUser(token);
+    const supabase = await createSupabaseServerClient();
+    const { data: userResp, error } = await supabase.auth.getUser(token);
 
     if (error || !userResp.user) {
       console.error("Token verification failed:", error);
@@ -20,7 +19,7 @@ export async function POST(req: Request) {
 
     const user = userResp.user;
 
-    const { error: softDeleteErr } = await supabaseAdmin
+    const { error: softDeleteErr } = await supabase
       .from("profiles")
       .update({
         consent_accepted: false,
@@ -36,10 +35,7 @@ export async function POST(req: Request) {
 
     // 4. Hard delete: Remove profile record completely
     // WARNING: Ensure you understand any cascade implications on other tables.
-    const { error: profileDeleteErr } = await supabaseAdmin
-      .from("profiles")
-      .delete()
-      .eq("id", user.id);
+    const { error: profileDeleteErr } = await supabase.from("profiles").delete().eq("id", user.id);
 
     if (profileDeleteErr) {
       console.error("Profile hard delete error:", profileDeleteErr);
@@ -47,7 +43,7 @@ export async function POST(req: Request) {
     }
 
     // 5. Delete user from Supabase Auth (requires Service Role permissions)
-    const { error: userDeleteErr } = await supabaseAdmin.auth.admin.deleteUser(user.id);
+    const { error: userDeleteErr } = await supabase.auth.admin.deleteUser(user.id);
 
     if (userDeleteErr) {
       console.error("Auth user deletion error:", userDeleteErr);

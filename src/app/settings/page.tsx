@@ -3,7 +3,7 @@
 
 import React, { useState, useEffect } from "react";
 import { ShieldOff, Trash2, Loader2, User, Check, X, Bell } from "lucide-react";
-import { supabase } from "@/lib/supabaseClient";
+import { createSupabaseClient } from "@/lib/supabase/browser";
 
 type Status = "idle" | "loading" | "success" | "error";
 
@@ -30,6 +30,7 @@ export default function SettingsPage() {
   const [consentStatus, setConsentStatus] = useState<Status>("idle");
   const [deleteStatus, setDeleteStatus] = useState<Status>("idle");
   const [isConsentAccepted, setIsConsentAccepted] = useState(true);
+  const supabase = createSupabaseClient();
 
   useEffect(() => {
     const fetchUser = async () => {
@@ -51,7 +52,7 @@ export default function SettingsPage() {
       }
     };
     fetchUser();
-  }, []);
+  }, [supabase]);
 
   const handleRevokeConsent = async () => {
     if (!userId) return;

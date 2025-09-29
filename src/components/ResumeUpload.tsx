@@ -1,217 +1,301 @@
 "use client";
 
-import { useState, useCallback } from "react";
-// FIX: The path alias "@/lib/supabaseClient" failed to resolve.
-// We are mocking the necessary supabase client functionality for demonstration.
-// import { supabase } from "@/lib/supabaseClient";
-import { Upload } from "lucide-react";
+import React, { useState, useEffect } from "react";
+import { FileUp, Loader2, CheckCircle, XCircle, ArrowRight, MousePointer } from "lucide-react";
+import { createSupabaseClient } from "@/lib/supabase/browser";
 
-// --- Mock Implementation for Compilation Fix ---
-// This mock object provides the minimum functionality (auth.getUser)
-// needed by the component to proceed without the external file.
-const supabase = {
-  auth: {
-    getUser: async () => ({
-      data: { user: { id: "mock-user-id-12345" } }, // Provide a mock user ID
-    }),
-  },
-};
+const RESUME_BUCKET = "resumes"; // Define the bucket name
+const ASSESSMENT_TABLE = "assessments";
+// Define props to include the callback for success
+interface ResumeUploadProps {
+  onUploadSuccess: (assessmentId: string) => void;
+  onContinue: () => void;
+  // New prop: indicates if the Resume step was successfully completed in this flow session (Back button logic)
+  isResumeStepCompletedInFlow: boolean;
+  // Persistent state: indicates if *any* file was ever uploaded (for initialization/re-select logic)
+  hasFileUploadedHistorically: boolean;
+}
 
-// Mock implementation of uploadWithProgress for completeness,
-// replace with your actual implementation from "@/lib/upload"
-const uploadWithProgress = async (file: File, url: string, setProgress: (p: number) => void) => {
-  console.log(`Mock Uploading ${file.name} to ${url}`);
+export const ResumeUpload: React.FC<ResumeUploadProps> = ({
+  onUploadSuccess,
+  onContinue,
+  isResumeStepCompletedInFlow,
+  hasFileUploadedHistorically,
+}) => {
+  const [file, setFile] = useState<File | null>(null);
+  const [isUploading, setIsUploading] = useState(false);
 
-  // Simulate upload progress
-  for (let i = 1; i <= 100; i += 10) {
-    await new Promise(resolve => setTimeout(resolve, 100));
-    setProgress(i);
-  }
-  setProgress(100);
-  console.log("Mock Upload Complete.");
-  return { path: `resumes/${file.name}` };
-};
-
-export default function ResumeUpload() {
-  const [progress, setProgress] = useState(0);
-  const [isDragging, setIsDragging] = useState(false);
-  const [errorMessage, setErrorMessage] = useState<string | null>(null);
-
-  /**
-   * Central logic to process and upload a single file.
-   * @param file The File object to upload.
-   */
-  const processAndUpload = useCallback(
-    async (file: File) => {
-      setErrorMessage(null);
-      setProgress(0);
-
-      // 1. Validation
-      if (file.size > 5 * 1024 * 1024) {
-        // Changed max size to 5MB as per UI text
-        setErrorMessage("File too large (5MB max)");
-        return;
-      }
-
-      const ext = file.name.split(".").pop()?.toLowerCase();
-      if (!["pdf", "doc", "docx", "txt"].includes(ext!)) {
-        setErrorMessage("Invalid file type. Please use PDF, DOCX, DOC, or TXT.");
-        return;
-      }
-
-      // 2. Auth Check
-      const {
-        data: { user },
-      } = await supabase.auth.getUser();
-      if (!user) {
-        setErrorMessage("Authentication failed. Please sign in.");
-        return;
-      }
-
-      try {
-        // 3. Request Signed URL
-        const res = await fetch("/api/resumes", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ fileName: file.name, userId: user.id }),
-        });
-
-        if (!res.ok) {
-          throw new Error("Failed to get signed upload URL.");
-        }
-
-        const { url } = await res.json();
-
-        // 4. Upload with progress
-        // Note: The mock uploadWithProgress simulates the actual upload logic
-        const result = await uploadWithProgress(file, url, setProgress);
-
-        console.log("Uploaded to:", result.path);
-      } catch (error) {
-        console.error("Upload error:", error);
-        setErrorMessage("An error occurred during upload. Check console for details.");
-      } finally {
-        // Only reset progress to 0 if an error occurred,
-        // otherwise let it display 100% success state briefly
-        if (errorMessage) {
-          setProgress(0);
-        } else if (progress === 100) {
-          // Keep at 100% briefly, then reset for next upload
-          setTimeout(() => setProgress(0), 3000);
-        }
-      }
-    },
-    [errorMessage, progress]
+  // Status is initialized to success ONLY if the parent flow indicates completion AND a file was historically uploaded
+  const initialStatus =
+    isResumeStepCompletedInFlow && hasFileUploadedHistorically ? "success" : "idle";
+  const [uploadStatus, setUploadStatus] = useState<"idle" | "success" | "error" | "selected">(
+    initialStatus
   );
 
-  // Handler for file input change
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (file) {
-      processAndUpload(file);
-      // Reset input value so same file can be selected again
-      e.target.value = "";
+  const [errorMessage, setErrorMessage] = useState("");
+  const supabase = createSupabaseClient();
+  const [isDragging, setIsDragging] = useState(false);
+
+  // Effect to reset status if the flow state changes to not-completed (i.e., manual progress bar click)
+  useEffect(() => {
+    // If the parent says the flow is reset, and we don't have a new file selected, reset the status
+    if (!isResumeStepCompletedInFlow && uploadStatus === "success" && !file) {
+      setUploadStatus("idle");
+    }
+  }, [isResumeStepCompletedInFlow, uploadStatus, file]);
+
+  // Client-side Validation (Acceptance Criterion met here)
+  const validateAndSetFile = (selectedFile: File | null) => {
+    setErrorMessage("");
+
+    if (selectedFile) {
+      if (selectedFile.type !== "application/pdf") {
+        setErrorMessage("Only PDF files are supported.");
+        setUploadStatus("error");
+        setFile(null);
+        return false;
+      }
+      if (selectedFile.size > 5 * 1024 * 1024) {
+        // Max 5MB
+        setErrorMessage("File size must be under 5MB.");
+        setUploadStatus("error");
+        setFile(null);
+        return false;
+      }
+
+      setFile(selectedFile);
+      setUploadStatus("selected"); // Change status to selected/ready-to-upload
+      return true;
+    } else {
+      setFile(null);
+      // If we clear the file, go back to idle, or keep success if the flow is still complete
+      setUploadStatus(
+        isResumeStepCompletedInFlow && hasFileUploadedHistorically ? "success" : "idle"
+      );
+      return false;
     }
   };
 
-  // Handlers for Drag & Drop
-  const handleDragOver = (e: React.DragEvent<HTMLDivElement>) => {
-    e.preventDefault(); // Necessary to allow dropping
-    e.stopPropagation();
-    if (!isDragging) setIsDragging(true);
+  // Handler for file input change
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const selectedFile = e.target.files?.[0] || null;
+    validateAndSetFile(selectedFile);
   };
 
-  const handleDragEnter = (e: React.DragEvent<HTMLDivElement>) => {
+  // Handlers for Drag and Drop
+  const handleDragOver = (e: React.DragEvent<HTMLDivElement>) => {
     e.preventDefault();
-    e.stopPropagation();
     setIsDragging(true);
   };
 
   const handleDragLeave = (e: React.DragEvent<HTMLDivElement>) => {
     e.preventDefault();
-    e.stopPropagation();
     setIsDragging(false);
   };
 
   const handleDrop = (e: React.DragEvent<HTMLDivElement>) => {
     e.preventDefault();
-    e.stopPropagation();
     setIsDragging(false);
+    const droppedFile = e.dataTransfer.files?.[0] || null;
+    validateAndSetFile(droppedFile);
+  };
 
-    // Get file from dataTransfer
-    const file = e.dataTransfer.files?.[0];
-    if (file) {
-      processAndUpload(file);
+  // Server-side Upload Logic
+  const handleUpload = async () => {
+    if (!file) {
+      setErrorMessage("Please select a file first.");
+      return;
+    }
+
+    setIsUploading(true);
+    setUploadStatus("idle");
+    setErrorMessage("");
+
+    try {
+      const {
+        data: { user },
+      } = await supabase.auth.getUser();
+      if (!user) {
+        setErrorMessage("Authentication required to upload.");
+        setUploadStatus("error");
+        return;
+      }
+
+      const fileExt = file.name.split(".").pop();
+      const fileName = `resume_${Date.now()}.${fileExt}`;
+      const filePath = `users/${user.id}/${fileName}`;
+
+      const { error: uploadError } = await supabase.storage
+        .from(RESUME_BUCKET)
+        .upload(filePath, file, {
+          cacheControl: "3600",
+          upsert: true,
+        });
+
+      if (uploadError) {
+        setErrorMessage(`Upload failed: ${uploadError.message}`);
+        setUploadStatus("error");
+        setIsUploading(false);
+        return;
+      }
+
+      const metadata = {
+        user_id: user.id,
+        file_name: file.name,
+        storage_path: filePath,
+        status: "DRAFT",
+      };
+
+      const { data, error: dbError } = await supabase
+        .from(ASSESSMENT_TABLE) // Assuming table name is 'resumes'
+        .insert([metadata])
+        .select("id");
+
+      if (dbError) {
+        setErrorMessage(`Database insert failed: ${dbError.message}`);
+        setUploadStatus("error");
+      } else if (data && data.length > 0) {
+        const newAssessmentId = data[0].id;
+        setUploadStatus("success");
+        onUploadSuccess(newAssessmentId);
+        setFile(null);
+      } else {
+        // Should not happen if select('id') is successful
+        setErrorMessage("Database insert failed to return ID.");
+        setUploadStatus("error");
+      }
+    } catch (e) {
+      setErrorMessage("An unexpected error occurred during upload.");
+      setUploadStatus("error");
+      console.error(e);
+    } finally {
+      setIsUploading(false);
     }
   };
 
-  // Determine border style based on dragging state and errors
-  const borderClasses = `
-    border-2 border-dashed rounded-xl p-8 transition-colors duration-300
+  // --- UI Logic ---
+
+  // Determine which button to show
+  const showContinueButton = uploadStatus === "success" && !file;
+  const isUploadButtonDisabled = isUploading || !file;
+  const isFileSelectionDisabled = isUploading;
+
+  const statusMap = {
+    idle: { icon: FileUp, color: "text-indigo-400", message: "Accepted format: PDF (Max 5MB)" },
+    selected: {
+      icon: CheckCircle,
+      color: "text-yellow-400",
+      message: `${file?.name} ready to upload.`,
+    },
+    success: {
+      icon: CheckCircle,
+      color: "text-green-400",
+      message: "Resume ready. Click 'Continue' or select a new file to update.",
+    },
+    error: { icon: XCircle, color: "text-red-400", message: errorMessage || "Upload failed." },
+  };
+
+  const currentStatus = statusMap[uploadStatus];
+
+  // Dynamic drop zone styling
+  const dropZoneClasses = `
+    p-6 space-y-4 rounded-xl transition-all duration-300
     ${
       isDragging
-        ? "border-indigo-400 bg-gray-700"
-        : errorMessage
-        ? "border-red-500 bg-gray-800 hover:border-red-400"
-        : "border-indigo-500/50 bg-gray-800 hover:border-indigo-400"
+        ? "border-indigo-500 bg-gray-700 border-solid"
+        : "border-gray-700 bg-gray-900/50 border-dashed"
     }
+    border-2
   `;
-
-  const isUploading = progress > 0 && progress < 100;
 
   return (
     <div
-      className={borderClasses}
+      className={dropZoneClasses}
       onDragOver={handleDragOver}
-      onDragEnter={handleDragEnter}
       onDragLeave={handleDragLeave}
       onDrop={handleDrop}
     >
-      <div className="flex flex-col items-center justify-center">
-        <Upload className="h-8 w-8 text-indigo-400 mb-3" />
-        <p className="text-sm text-gray-400 mb-2">
-          Drag & drop your resume here, or click the button below
-        </p>
+      {/* Drag & Drop Visual Indicator */}
+      {isDragging && (
+        <div className="absolute inset-0 z-10 flex flex-col items-center justify-center bg-gray-900/80 rounded-xl pointer-events-none">
+          <MousePointer className="w-12 h-12 text-indigo-400 animate-bounce" />{" "}
+          <p className="mt-2 text-xl font-semibold text-indigo-300">Drop your PDF resume here</p>
+        </div>
+      )}
 
-        {/* Input file button styling trick */}
-        <label htmlFor="file-upload" className="cursor-pointer">
-          <div
-            className={`rounded-lg px-4 py-2 text-sm font-semibold text-white shadow-md transition-colors ${
-              isUploading ? "bg-gray-500 cursor-not-allowed" : "bg-indigo-600 hover:bg-indigo-700"
-            } focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 focus:ring-offset-gray-900`}
-          >
-            {isUploading ? "Uploading..." : "Browse Files"}
+      <div className={`relative ${isDragging ? "opacity-50 pointer-events-none" : ""}`}>
+        <div className="flex flex-col items-center justify-center space-y-2 text-gray-400 mb-4">
+          <FileUp className="w-8 h-8" />
+          <p className="text-sm font-medium">Drag & Drop or Choose File</p>
+        </div>
+
+        {/* Hidden File Input (triggered by the label) */}
+        <label htmlFor="resume-file-input" className="block cursor-pointer">
+          <input
+            id="resume-file-input"
+            type="file"
+            accept=".pdf"
+            onChange={handleFileChange}
+            className="hidden" // Hide the default input UI
+            disabled={isFileSelectionDisabled}
+          />
+          {/* Custom File Picker Button */}
+          <div className="flex flex-col w-full text-center gap-2">
+            <span
+              className={`inline-flex items-center justify-center px-4 py-2 border border-transparent text-sm font-medium rounded-lg shadow-sm text-white transition duration-200 
+                            ${
+                              showContinueButton
+                                ? "bg-green-600 cursor-default"
+                                : "bg-indigo-600 hover:bg-indigo-700 cursor-pointer"
+                            }
+                        `}
+            >
+              {showContinueButton ? "File Uploaded" : "Select File"}
+            </span>
+            <p className={`text-sm flex items-center justify-center ${currentStatus.color}`}>
+              <currentStatus.icon className="w-4 h-4 mr-2" />
+              {currentStatus.message}
+            </p>
           </div>
         </label>
-        <input
-          id="file-upload"
-          type="file"
-          onChange={handleInputChange}
-          accept=".pdf,.doc,.docx,.txt"
-          disabled={isUploading}
-          className="sr-only" // Visually hide the input but keep it accessible
-        />
 
-        {/* Progress Bar and Status */}
-        {errorMessage && <p className="mt-4 text-sm text-red-400 font-semibold">{errorMessage}</p>}
-        {progress > 0 && progress <= 100 && (
-          <div className="w-full mt-4">
-            <p className="text-sm text-indigo-300 mb-1">
-              {progress < 100 ? `Uploading: ${progress}%` : "Upload Complete!"}
-            </p>
-            <div className="h-2 bg-gray-700 rounded-full">
-              <div
-                className={`h-2 rounded-full transition-all duration-300 ${
-                  progress === 100 ? "bg-green-500" : "bg-indigo-500"
-                }`}
-                style={{ width: `${progress}%` }}
-              />
-            </div>
-          </div>
-        )}
+        {/* Action Buttons */}
+        <div className="flex flex-col justify-center items-center gap-4 pt-4 border-t border-gray-700 mt-4">
+          {/* 1. UPLOAD BUTTON (Shown when a new file is selected or if error/idle) */}
+          {(uploadStatus !== "success" || file) && (
+            <button
+              onClick={handleUpload}
+              disabled={isUploadButtonDisabled}
+              className={`mt-2 flex w-full items-center justify-center rounded-xl py-3 px-4 text-lg font-bold text-white shadow-xl shadow-indigo-600/30 transition-all duration-300 hover:bg-indigo-700 
+                                ${
+                                  isUploadButtonDisabled
+                                    ? "bg-indigo-400 cursor-not-allowed"
+                                    : "bg-indigo-600"
+                                }
+                            `}
+            >
+              {isUploading ? (
+                <Loader2 className="w-5 h-5 mr-2 animate-spin" />
+              ) : (
+                <FileUp className="w-5 h-5 mr-2" />
+              )}
+              {isUploading ? "Uploading..." : "Upload File & Proceed"}
+              <ArrowRight className="ml-3 h-5 w-5" />
+            </button>
+          )}
 
-        <p className="mt-2 text-xs text-gray-500">(PDF, DOCX, DOC, TXT only. Max 5MB)</p>
+          {/* 2. CONTINUE BUTTON (Shown when already uploaded and no new file selected) */}
+          {showContinueButton && (
+            <button
+              onClick={onContinue}
+              className="mt-2 flex w-full items-center justify-center rounded-xl bg-green-600 py-3 px-4 text-lg font-bold text-white shadow-xl shadow-green-600/30 transition-all duration-300 hover:bg-green-700"
+            >
+              Continue to Assessment
+              <ArrowRight className="ml-3 h-5 w-5" />
+            </button>
+          )}
+        </div>
       </div>
     </div>
   );
-}
+};

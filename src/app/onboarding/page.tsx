@@ -3,12 +3,13 @@
 import { ShieldCheck, BookOpenText, ArrowRight } from "lucide-react";
 import { useState, useCallback } from "react";
 import { useRouter } from "next/navigation";
-import { supabase } from "@/lib/supabaseClient";
+import { createSupabaseClient } from "@/lib/supabase/browser";
 
 export default function OnboardingPage() {
   const router = useRouter();
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState("");
+  const supabase = createSupabaseClient();
 
   // Set the global status update function
   // setNavigationStatus = setMessage;
@@ -51,7 +52,7 @@ export default function OnboardingPage() {
 
     setMessage("Consent accepted! Redirecting...");
     router.push("/assessment-profile");
-  }, [router]);
+  }, [router, supabase]);
 
   // const handleConsent = async () => {
   //   const { error } = await supabase.auth.updateUser({

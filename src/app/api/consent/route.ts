@@ -1,30 +1,33 @@
+// app/api/accept-consent/route.ts
 import { NextResponse } from "next/server";
-import { supabaseAdmin } from "@/lib/supabaseAdmin.server";
+import { createSupabaseServerClient } from "@/lib/supabase/server";
 
 export async function POST(req: Request) {
   try {
     const authHeader = req.headers.get("authorization");
-    if (!authHeader) {
-      return new NextResponse(JSON.stringify({ error: "missing auth" }), { status: 401 });
+    if (!authHeader?.startsWith("Bearer ")) {
+      return NextResponse.json({ error: "missing auth" }, { status: 401 });
     }
+
     const token = authHeader.split(" ")[1];
+    const supabase = await createSupabaseServerClient();
 
-    const { data: userResp, error } = await supabaseAdmin.auth.getUser(token);
+    // ✅ must be access_token, not refresh_token
+    const { data: userResp, error: userErr } = await supabase.auth.getUser(token);
 
-    if (error || !userResp.user) {
-      console.error("Token verification failed:", error);
-      return new NextResponse(JSON.stringify({ error: "invalid token" }), { status: 401 });
+    if (userErr || !userResp?.user) {
+      console.error("Token verification failed:", userErr);
+      return NextResponse.json({ error: "invalid token" }, { status: 401 });
     }
 
     const user = userResp.user;
+    const body = await req.json();
 
-    const { accept } = await req.json();
-
-    if (!accept) {
-      return new NextResponse(JSON.stringify({ error: "must accept" }), { status: 400 });
+    if (!body.accept) {
+      return NextResponse.json({ error: "must accept" }, { status: 400 });
     }
 
-    const { error: dbErr } = await supabaseAdmin
+    const { error: dbErr } = await supabase
       .from("profiles")
       .update({
         consent_accepted: true,
@@ -36,19 +39,12 @@ export async function POST(req: Request) {
 
     if (dbErr) {
       console.error("Database Error:", dbErr);
-      return new NextResponse(JSON.stringify({ error: "db error" }), { status: 500 });
+      return NextResponse.json({ error: "db error" }, { status: 500 });
     }
 
-    return new NextResponse(JSON.stringify({ ok: true }), {
-      status: 200,
-      headers: { "Content-Type": "application/json" },
-    });
-  } catch (error) {
-    // Catch network or parsing errors
-    console.error("API Error:", error);
-    return new NextResponse(JSON.stringify({ error: "Internal Server Error" }), {
-      status: 500,
-      headers: { "Content-Type": "application/json" },
-    });
+    return NextResponse.json({ ok: true }, { status: 200 });
+  } catch (err) {
+    console.error("API Error:", err);
+    return NextResponse.json({ error: "Internal Server Error" }, { status: 500 });
   }
 }

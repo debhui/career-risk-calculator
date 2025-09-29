@@ -1,7 +1,7 @@
 // pages/api/save-session.ts
 import { NextResponse } from "next/server";
 // Assuming 'supabaseAdmin' is the server-side client with Service Role key access
-import { supabaseAdmin } from "@/lib/supabaseAdmin.server";
+import { createSupabaseServerClient } from "@/lib/supabase/server";
 import { encryptJSON } from "@/lib/crypto";
 
 // Define a simple type for the identity to avoid 'any' error
@@ -24,11 +24,9 @@ export async function POST(req: Request) {
         status: 400,
       });
     }
-
+    const supabase = await createSupabaseServerClient();
     // 2. Validate session via supabase service client: get user by access_token
-    const { data: userResp, error: userErr } = await supabaseAdmin.auth.getUser(
-      session.access_token
-    );
+    const { data: userResp, error: userErr } = await supabase.auth.getUser(session.access_token);
 
     if (userErr || !userResp.user) {
       console.error("Supabase getUser error:", userErr);
@@ -60,7 +58,7 @@ export async function POST(req: Request) {
     const enc = encryptJSON(tokenPayload);
 
     // 5. Upsert profile row
-    const { error: dbError } = await supabaseAdmin // data: _data,
+    const { error: dbError } = await supabase // data: _data,
       .from("profiles")
       .upsert(
         {

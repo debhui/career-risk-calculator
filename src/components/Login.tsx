@@ -1,9 +1,11 @@
 "use client";
 
-import { supabase } from "@/lib/supabaseClient";
+import { createSupabaseClient } from "@/lib/supabase/browser";
 import { Chrome } from "lucide-react";
 
 export default function Login() {
+  const supabase = createSupabaseClient();
+
   const handleLogin = async () => {
     // Using a relative path for the redirect, which should work in a local environment
     // where window.location.origin is defined.

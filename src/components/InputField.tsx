@@ -7,6 +7,7 @@ export const InputField = ({
   register,
   errors,
   type = "text",
+  value,
 }: any) => (
   <div>
     <label htmlFor={id} className="block text-sm font-medium text-gray-300 mb-1">
@@ -23,6 +24,7 @@ export const InputField = ({
         placeholder={placeholder}
         // Register field with React Hook Form
         {...register(id)}
+        defaultValue={value || ""}
         className={`block w-full rounded-lg border-2 bg-gray-700 py-3 pl-12 pr-3 text-white placeholder-gray-400 shadow-inner sm:text-sm transition-all duration-200
                     ${
                       errors[id]

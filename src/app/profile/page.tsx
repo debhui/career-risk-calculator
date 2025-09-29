@@ -3,7 +3,7 @@
 import React, { useEffect, useState } from "react";
 import { User as AuthUser } from "@supabase/supabase-js";
 import { User as UserIcon, CheckCircle, XCircle, Settings, FileText } from "lucide-react";
-import { supabase } from "@/lib/supabaseClient";
+import { createSupabaseClient } from "@/lib/supabase/browser";
 import Image from "next/image";
 
 interface UserProfile {
@@ -56,6 +56,7 @@ export default function ProfilePage() {
   const [profile, setProfile] = useState<UserProfile | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const supabase = createSupabaseClient();
 
   useEffect(() => {
     const fetchUserData = async () => {
@@ -106,8 +107,11 @@ export default function ProfilePage() {
     };
 
     fetchUserData();
-  }, []);
+  }, [supabase]);
 
+  useEffect(() => {
+    console.log(profile);
+  }, [profile]);
   const profileName =
     profile?.full_name ||
     user?.user_metadata?.full_name ||

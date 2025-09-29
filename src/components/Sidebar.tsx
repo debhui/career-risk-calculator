@@ -1,26 +1,25 @@
 // components/Sidebar.tsx
 "use client";
 
-import { ShieldCheck, Settings, X } from "lucide-react";
+import { Home, ShieldCheck, Clock, Settings, X } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 
 const sidebarItems = [
-  // {
-  //   name: "Dashboard",
-  //   icon: Home,
-  //   url: "/dashboard",
-  // },
-
-  // {
-  //   name: "Assement Profile",
-  //   icon: ShieldCheck,
-  //   url: "/assessment-profile",
-  // },
+  {
+    name: "Home",
+    icon: Home,
+    url: "/",
+  },
   {
     name: "Assement",
     icon: ShieldCheck,
     url: "/assessment",
+  },
+  {
+    name: "History",
+    icon: Clock,
+    url: "/history",
   },
   {
     name: "Settings",
