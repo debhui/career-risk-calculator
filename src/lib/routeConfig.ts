@@ -1,2 +1,2 @@
 // lib/routeConfig.ts
-export const publicRoutes = ["/", "/privacy", "/terms"]; // landing + login + info
+export const publicRoutes = ["/", "/privacy", "/terms", "/pricing"]; // landing + login + info

@@ -3,6 +3,7 @@
 import React, { useState, useEffect } from "react";
 import { createSupabaseClient } from "@/lib/supabase/browser";
 import { Clock, Loader2, ListX, ChevronDown, ChevronUp } from "lucide-react";
+import { useSupabaseDownloader } from "@/hooks/useSupabaseDownloader";
 
 // 1. Define the full structure of your assessment data
 type AssessmentItem = {
@@ -26,6 +27,7 @@ export default function HistoryPage() {
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
   const [expandedId, setExpandedId] = useState<string | null>(null);
+  const { isLoadingDownload, errorDownload, downloadFile } = useSupabaseDownloader();
 
   /**
    * Toggles the expansion state of a history item.
@@ -153,7 +155,16 @@ export default function HistoryPage() {
                   </div>
 
                   {/* Detailed Body - Shown only when expanded */}
-                  {isExpanded && <AssessmentDetail item={item} />}
+                  {isExpanded && (
+                    <>
+                      <AssessmentDetail
+                        item={item}
+                        handleDownload={downloadFile}
+                        isLoading={isLoadingDownload}
+                      />
+                      {errorDownload && <p className="text-red-500 text-sm">{error}</p>}
+                    </>
+                  )}
                 </li>
               );
             })}
@@ -170,7 +181,15 @@ export default function HistoryPage() {
  * Renders the full details of a single assessment item.
  * @param {AssessmentItem} item - The full assessment data object.
  */
-function AssessmentDetail({ item }: { item: AssessmentItem }) {
+function AssessmentDetail({
+  item,
+  isLoading,
+  handleDownload,
+}: {
+  item: AssessmentItem;
+  isLoading?: boolean;
+  handleDownload: (bucket: string, path: string, filename?: string) => void;
+}) {
   // A helper function to format the data keys into readable labels
   const formatLabel = (key: string) => {
     return key.replace(/_/g, " ").replace(/\b\w/g, char => char.toUpperCase());
@@ -238,14 +257,15 @@ function AssessmentDetail({ item }: { item: AssessmentItem }) {
 
       {/* Optional: Add a link to download the file if storage_path is available */}
       {item.storage_path && (
-        <a
-          href={`/api/download?path=${item.storage_path}`} // Adjust this API route as needed
+        <button
           className="mt-4 inline-block text-green-600 dark:text-green-400 hover:text-green-500 dark:hover:text-green-300 transition duration-150 text-sm font-semibold"
-          target="_blank"
-          rel="noopener noreferrer"
+          onClick={() => {
+            handleDownload("resumes", item.storage_path);
+          }}
+          disabled={isLoading}
         >
-          Download Submitted File
-        </a>
+          {isLoading ? "Downloading..." : "Download Resume"}
+        </button>
       )}
     </div>
   );
