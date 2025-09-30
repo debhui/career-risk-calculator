@@ -1,4 +1,3 @@
-// app/layout.tsx
 "use client";
 
 import { useEffect, useState } from "react";
@@ -6,7 +5,7 @@ import "./globals.css";
 import Footer from "@/components/Footer";
 import Navbar from "@/components/Navbar";
 import Sidebar from "@/components/Sidebar";
-// import { supabase } from "@/lib/supabaseClient";
+import Providers from "@/components/Providers";
 import { createSupabaseClient } from "@/lib/supabase/browser";
 
 export default function RootLayout({
@@ -42,26 +41,28 @@ export default function RootLayout({
     checkAuthentication();
   }, []);
 
-  // const isAuthenticated = !!user;
   return (
-    <html lang="en" className="h-full">
-      <body className="flex flex-col h-full bg-gray-900 text-white">
-        <Navbar
-          isAuthenticated={isAuthenticated}
-          userEmail={userEmail}
-          avatarUrl={avatarUrl}
-          onMenuClick={() => setIsSidebarOpen(true)}
-        />
-        <div className="flex flex-1 bg-gray-900 overflow-hidden">
-          {isAuthenticated && (
-            <Sidebar isMobileOpen={isSidebarOpen} onClose={() => setIsSidebarOpen(false)} />
-          )}
-          <main className="flex-1 overflow-y-auto">
-            {/* The main content area where children are rendered */}
-            <div className="p-0">{children}</div>
-            <Footer />
-          </main>
-        </div>
+    // The 'dark' class will be added to the html element by the Providers/ThemeProvider
+    <html lang="en" suppressHydrationWarning className="h-full">
+      <body className="flex flex-col h-full bg-white text-gray-900 dark:bg-gray-900 dark:text-white transition-colors duration-300">
+        <Providers>
+          <Navbar
+            isAuthenticated={isAuthenticated}
+            userEmail={userEmail}
+            avatarUrl={avatarUrl}
+            onMenuClick={() => setIsSidebarOpen(true)}
+          />
+          {/* Main Content Wrapper - Needs proper light/dark background */}
+          <div className="flex flex-1  bg-white dark:bg-gray-900 overflow-hidden">
+            {isAuthenticated && (
+              <Sidebar isMobileOpen={isSidebarOpen} onClose={() => setIsSidebarOpen(false)} />
+            )}
+            <main className="flex-1 h-full overflow-y-auto">
+              <div className="p-0">{children}</div>
+              <Footer />
+            </main>
+          </div>
+        </Providers>
       </body>
     </html>
   );

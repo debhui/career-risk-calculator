@@ -1,4 +1,3 @@
-// settings/page.tsx
 "use client";
 
 import React, { useState, useEffect } from "react";
@@ -21,10 +20,10 @@ const StatusMessage: React.FC<{ type: Status; message: string }> = ({ type, mess
 };
 
 export default function SettingsPage() {
-  // const router = useRouter();
   const [userId, setUserId] = useState<string | null>(null);
   const [userData, setUserData] = useState<any>({});
   const [isConfirmingDelete, setIsConfirmingDelete] = useState(false);
+  const [isLoading, setIsLoading] = useState(true); // Added loading state for initial data fetch
 
   // Status states for asynchronous actions
   const [consentStatus, setConsentStatus] = useState<Status>("idle");
@@ -34,21 +33,27 @@ export default function SettingsPage() {
 
   useEffect(() => {
     const fetchUser = async () => {
-      const {
-        data: { user },
-      } = await supabase.auth.getUser();
-      if (user) {
-        setUserId(user.id);
-        setUserData(user);
-        // Fetch current consent status
-        const { data } = await supabase // error
-          .from("profiles")
-          .select("consent_accepted")
-          .eq("id", user.id)
-          .single();
-        if (data) {
-          setIsConsentAccepted(data.consent_accepted);
+      try {
+        const {
+          data: { user },
+        } = await supabase.auth.getUser();
+        if (user) {
+          setUserId(user.id);
+          setUserData(user);
+          // Fetch current consent status
+          const { data } = await supabase
+            .from("profiles")
+            .select("consent_accepted")
+            .eq("id", user.id)
+            .single();
+          if (data) {
+            setIsConsentAccepted(data.consent_accepted);
+          }
         }
+      } catch (error) {
+        console.error("Failed to fetch user data:", error);
+      } finally {
+        setIsLoading(false); // Hide loading indicator once fetch is complete
       }
     };
     fetchUser();
@@ -75,7 +80,7 @@ export default function SettingsPage() {
       }
     } catch (e) {
       setConsentStatus("error");
-      console.error("Network error during deletion:", e);
+      console.error("Network error during consent revocation:", e);
     }
   };
 
@@ -97,7 +102,6 @@ export default function SettingsPage() {
       if (response.ok) {
         setDeleteStatus("success");
         // Force redirect to login/home page after successful server-side deletion
-        // The API route should have already signed out the user via admin.deleteUser
         setTimeout(() => (window.location.href = "/login"), 2000);
       } else {
         const errorData = await response.json();
@@ -106,55 +110,71 @@ export default function SettingsPage() {
       }
     } catch (e) {
       setDeleteStatus("error");
-      console.error("Error:", e);
+      console.error("Error during account deletion:", e);
     } finally {
       setIsConfirmingDelete(false); // Close modal regardless of outcome
     }
   };
 
+  // Conditional Rendering for initial loading state
+  if (isLoading) {
+    return (
+      <div className="bg-white dark:bg-gray-900 text-gray-900 dark:text-white min-h-screen flex items-center justify-center transition-colors duration-300">
+        <div className="flex items-center space-x-3 text-lg font-medium text-gray-700 dark:text-gray-300">
+          <Loader2 className="w-8 h-8 mx-auto mb-4 animate-spin text-green-600 dark:text-green-400" />
+          <p>Loading settings...</p>
+        </div>
+      </div>
+    );
+  }
+
   return (
-    <div>
+    <div className="bg-white dark:bg-gray-900 text-gray-900 dark:text-white min-h-[calc(100vh-178px)] transition-colors duration-300">
       <div className="max-w-4xl mx-auto p-4 sm:p-8 pt-12">
-        <h1 className="text-3xl font-extrabold text-white mb-8 border-b border-gray-700 pb-3 flex items-center">
-          {/* <Settings className="w-6 h-6 mr-3 text-green-400" /> */}
-          Account Settings
-        </h1>
+        <div className="flex justify-between items-center mb-8 border-b border-gray-300 dark:border-gray-700 pb-3">
+          <h1 className="text-3xl font-extrabold text-gray-800 dark:text-white flex items-center">
+            Account Settings
+          </h1>
+        </div>
 
         {/* Account Section */}
-        <div className="bg-gray-800 shadow-xl rounded-xl p-6 mb-8 border border-gray-700">
-          <h2 className="text-xl font-bold text-white mb-4 flex items-center">
-            <User className="w-5 h-5 mr-2 text-blue-400" /> Account Information
+        <div className="bg-gray-200 dark:bg-gray-800 shadow-xl rounded-xl p-6 mb-8 border border-gray-300 dark:border-gray-700 transition-colors duration-300">
+          <h2 className="text-xl font-bold text-gray-800 dark:text-white mb-4 flex items-center">
+            <User className="w-5 h-5 mr-2 text-blue-600 dark:text-blue-400" /> Account Information
           </h2>
-          <p className="text-gray-400 mb-2">
+          <p className="text-gray-600 dark:text-gray-400 mb-2">
             User ID:{" "}
-            <span className="font-mono text-sm bg-gray-700 p-1 rounded text-green-300">
+            <span className="font-mono text-sm bg-gray-300 dark:bg-gray-700 p-1 rounded text-green-700 dark:text-green-300">
               {userId || "Loading..."}
             </span>
           </p>
-          <p className="text-gray-400">
+          <p className="text-gray-600 dark:text-gray-400">
             Email:{" "}
-            <span className="font-medium text-white">
+            <span className="font-medium text-gray-800 dark:text-white">
               {userId ? userData?.email : "Loading..."}
             </span>
           </p>
         </div>
 
         {/* Data Management Section */}
-        <div className="bg-gray-800 shadow-xl rounded-xl p-6 border border-gray-700">
-          <h2 className="text-xl font-bold text-white mb-4 flex items-center">
-            <ShieldOff className="w-5 h-5 mr-2 text-red-400" /> Data Management & Deletion
+        <div className="bg-gray-200 dark:bg-gray-800 shadow-xl rounded-xl p-6 border border-gray-300 dark:border-gray-700 transition-colors duration-300">
+          <h2 className="text-xl font-bold text-gray-800 dark:text-white mb-4 flex items-center">
+            <ShieldOff className="w-5 h-5 mr-2 text-red-600 dark:text-red-400" /> Data Management &
+            Deletion
           </h2>
 
           {/* Revoke Consent Card */}
-          <div className="flex justify-between items-center bg-gray-900 p-4 rounded-lg border border-gray-700/50 mb-4">
+          <div className="flex justify-between items-center bg-gray-300 dark:bg-gray-900 p-4 rounded-lg border border-gray-400 dark:border-gray-700/50 mb-4 transition-colors duration-300">
             <div>
-              <p className="font-semibold text-white">Revoke Data Consent</p>
-              <p className="text-sm text-gray-500">
+              <p className="font-semibold text-gray-800 dark:text-white">Revoke Data Consent</p>
+              <p className="text-sm text-gray-600 dark:text-gray-500">
                 This stops all analysis and use of your data, but keeps your account active.
               </p>
               <p
                 className={`text-sm mt-1 font-medium ${
-                  isConsentAccepted ? "text-green-500" : "text-red-500"
+                  isConsentAccepted
+                    ? "text-green-600 dark:text-green-500"
+                    : "text-red-600 dark:text-red-500"
                 }`}
               >
                 Status: {isConsentAccepted ? "Consent Accepted" : "Consent Revoked"}
@@ -166,7 +186,7 @@ export default function SettingsPage() {
               className={`px-4 py-2 text-sm font-medium rounded-lg transition duration-200 flex items-center ${
                 isConsentAccepted
                   ? "bg-yellow-600 hover:bg-yellow-700 text-white"
-                  : "bg-gray-600 text-gray-400 cursor-not-allowed"
+                  : "bg-gray-400 dark:bg-gray-600 text-gray-600 dark:text-gray-400 cursor-not-allowed"
               }`}
             >
               {consentStatus === "loading" ? (
@@ -188,10 +208,12 @@ export default function SettingsPage() {
           />
 
           {/* Delete Account Card */}
-          <div className="flex justify-between items-center bg-gray-900 p-4 rounded-lg border border-red-900 mt-6">
+          <div className="flex justify-between items-center bg-gray-300 dark:bg-gray-900 p-4 rounded-lg border border-red-500 dark:border-red-700 mt-6 transition-colors duration-300">
             <div>
-              <p className="font-semibold text-red-400">Permanently Delete Account</p>
-              <p className="text-sm text-gray-500">
+              <p className="font-semibold text-red-600 dark:text-red-400">
+                Permanently Delete Account
+              </p>
+              <p className="text-sm text-gray-600 dark:text-gray-500">
                 This action is irreversible. All profile data and analysis will be permanently
                 deleted.
               </p>
@@ -224,19 +246,19 @@ export default function SettingsPage() {
       {/* Confirmation Modal */}
       {isConfirmingDelete && (
         <div className="fixed inset-0 bg-black bg-opacity-70 flex items-center justify-center z-50">
-          <div className="bg-gray-800 p-8 rounded-xl shadow-2xl border border-red-700 max-w-sm w-full">
-            <h3 className="text-xl font-bold text-red-400 mb-3 flex items-center">
+          <div className="bg-white dark:bg-gray-800 p-8 rounded-xl shadow-2xl border border-red-600 max-w-sm w-full transition-colors duration-300">
+            <h3 className="text-xl font-bold text-red-600 dark:text-red-400 mb-3 flex items-center">
               <Bell className="w-6 h-6 mr-2 animate-pulse" />
               Confirm Deletion
             </h3>
-            <p className="text-gray-400 mb-6">
+            <p className="text-gray-700 dark:text-gray-400 mb-6">
               Are you absolutely sure? This will **permanently delete** your user account and all
               associated data. This action cannot be undone.
             </p>
             <div className="flex justify-end space-x-3">
               <button
                 onClick={() => setIsConfirmingDelete(false)}
-                className="px-4 py-2 text-sm font-medium rounded-lg text-gray-300 hover:bg-gray-700 transition"
+                className="px-4 py-2 text-sm font-medium rounded-lg text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-700 transition"
               >
                 Cancel
               </button>

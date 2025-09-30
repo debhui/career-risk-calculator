@@ -119,7 +119,7 @@ export function AssessmentProfile({ profile, onProfileSubmit }: AssessmentProfil
 
   return (
     <form onSubmit={handleSubmit(onProfileSubmit)} className="space-y-6">
-      <h2 className="text-2xl font-bold text-white border-b border-gray-700 pb-3">
+      <h2 className="text-2xl font-bold text-gray-900 dark:text-white border-b border-gray-300 dark:border-gray-700 pb-3">
         Personal & Contact Information
       </h2>
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -163,10 +163,14 @@ export function AssessmentProfile({ profile, onProfileSubmit }: AssessmentProfil
       </div>
       <div className="relative py-4 mt-8">
         <div className="absolute inset-0 flex items-center">
-          <div className="w-full border-t border-gray-700"></div>
+          {/* Theme-aware border for separator line */}
+          <div className="w-full border-t border-gray-300 dark:border-gray-700"></div>
         </div>
         <div className="relative flex justify-start text-sm">
-          <h2 className="bg-gray-800 pr-3 text-2xl font-bold text-white">Current Employment</h2>
+          {/* Theme-aware background and text for separator header */}
+          <h2 className="pr-3 text-2xl font-bold text-gray-900 dark:text-white">
+            Current Employment
+          </h2>
         </div>
       </div>
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -192,7 +196,7 @@ export function AssessmentProfile({ profile, onProfileSubmit }: AssessmentProfil
       <button
         type="submit"
         disabled={isProfileSubmitting}
-        className="mt-10 flex w-full items-center justify-center rounded-xl bg-indigo-600 py-3 px-4 text-lg font-bold text-white shadow-xl shadow-indigo-600/30 transition-all duration-300 hover:bg-indigo-700 disabled:bg-indigo-400 disabled:cursor-not-allowed"
+        className="mt-10 flex w-full items-center justify-center rounded-xl bg-teal-600 dark:bg-indigo-600 py-3 px-4 text-lg font-bold text-white shadow-xl shadow-teal-600/30 dark:shadow-indigo-600/30 transition-all duration-300 hover:bg-teal-700 hover:dark:bg-indigo-700 disabled:bg-teal-400 disabled:dark:bg-indigo-400 disabled:cursor-not-allowed"
       >
         {isProfileSubmitting ? (
           <Loader2 className="mr-2 h-5 w-5 animate-spin" />

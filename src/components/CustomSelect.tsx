@@ -71,7 +71,10 @@ const CustomSelect: React.FC<CustomSelectProps> = ({ id, value, onChange, option
 
   return (
     <div className="relative w-full " ref={selectRef}>
-      <label htmlFor={id} className="block text-sm font-medium text-gray-300 mb-1">
+      <label
+        htmlFor={id}
+        className="block text-sm font-medium text-gray-800 dark:text-gray-300 mb-1"
+      >
         {label}
       </label>
 
@@ -84,7 +87,7 @@ const CustomSelect: React.FC<CustomSelectProps> = ({ id, value, onChange, option
         aria-labelledby={`${id}-label`}
         onClick={handleToggle}
         onKeyDown={handleKeyDown}
-        className="w-full h-10 bg-gray-700 text-white border border-gray-600 rounded-lg shadow-sm pl-3 pr-10 py-2 text-left cursor-pointer transition duration-150 ease-in-out hover:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+        className="w-full h-10 bg-gray-300 dark:bg-gray-700 text-gray-800 dark:text-white border border-gray-400 dark:border-gray-600 rounded-lg shadow-sm pl-3 pr-10 py-2 text-left cursor-pointer transition duration-150 ease-in-out hover:border-teal-500  hover:dark:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-teal-500 focus:dark:ring-indigo-500 focus:border-teal-500  focus:dark:border-indigo-500 sm:text-sm"
       >
         <span className="block truncate">{value}</span>
 
@@ -93,7 +96,9 @@ const CustomSelect: React.FC<CustomSelectProps> = ({ id, value, onChange, option
           className={`absolute right-2 top-4 flex items-center pr-2 pointer-events-none `} //  ${
         >
           <Triangle
-            className={`transition-transform duration-300 ${isOpen ? "rotate-0" : "-rotate-180"}`}
+            className={`transition-transform duration-300 fill-teal-500 dark:fill-white text-teal-500 dark:text-white ${
+              isOpen ? "rotate-0" : "-rotate-180"
+            }`}
             fill="white"
             size={10}
           />
@@ -102,7 +107,7 @@ const CustomSelect: React.FC<CustomSelectProps> = ({ id, value, onChange, option
 
       {/* Custom Options List */}
       {isOpen && (
-        <div className="absolute z-10 mt-1 w-full bg-gray-800 shadow-lg rounded-lg border border-gray-600 ring-1 ring-black ring-opacity-5 overflow-auto max-h-60">
+        <div className="absolute z-10 mt-1 w-full bg-gray-200 dark:bg-gray-800 shadow-lg rounded-lg border border-gray-400 dark:border-gray-600 ring-1 ring-gray-200 dark:ring-black ring-opacity-5 overflow-auto max-h-60">
           <ul
             tabIndex={-1}
             role="listbox"
@@ -116,18 +121,18 @@ const CustomSelect: React.FC<CustomSelectProps> = ({ id, value, onChange, option
                 aria-selected={option === value}
                 onClick={() => handleOptionClick(option)}
                 className={`
-                  text-gray-300 cursor-default select-none relative py-2 pl-3 pr-9
+                  text-gray-700 dark:text-gray-300 cursor-default select-none relative py-2 pl-3 pr-9
                   ${
                     option === value
-                      ? "font-semibold text-white bg-indigo-600"
-                      : "hover:bg-gray-700"
+                      ? "font-semibold text-gray-800 dark:text-white bg-teal-600 dark:bg-indigo-600"
+                      : "hover:bg-teal-500 hover:dark:bg-gray-700"
                   }
                 `}
               >
                 <div className="flex items-center">
                   <span
                     className={`block truncate ${
-                      option === value ? "font-semibold" : "font-normal"
+                      option === value ? "font-semibold text-white" : "font-normal"
                     }`}
                   >
                     {option}

@@ -60,7 +60,7 @@ export default function CallbackPage() {
 
   return (
     <div className="flex flex-col items-center p-4 sm:p-6 font-inter">
-      <p className="text-white">Signing you in...</p>
+      <p className="text-gray-800 dark:text-white">Signing you in...</p>
     </div>
   );
 }

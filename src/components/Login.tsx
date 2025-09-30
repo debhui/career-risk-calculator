@@ -19,12 +19,12 @@ export default function Login() {
 
   return (
     <div className="flex items-center justify-center p-4">
-      <div className="w-full max-w-md space-y-8 rounded-2xl border border-indigo-700/50 bg-gray-800 p-8 shadow-2xl transition duration-300 hover:shadow-indigo-500/30">
+      <div className="w-full max-w-lg space-y-8 rounded-2xl border border-teal-700/50 dark:border-indigo-700/50 bg-gray-200 dark:bg-gray-800  p-8 shadow-2xl transition duration-300 hover:shadow-teal-500/30 hover:dark:shadow-indigo-500/30">
         <div className="text-center">
-          <h2 className="mt-2 text-3xl font-bold text-white tracking-tight">
-            Access Your Dashboard
+          <h2 className="mt-2 text-3xl font-bold text-gray-800 dark:text-white tracking-tight">
+            Access Your Career Risk Profile
           </h2>
-          <p className="mt-2 text-sm text-gray-400">
+          <p className="mt-2 text-sm text-gray-600 dark:text-gray-400">
             Sign in below to continue your risk assessment or view your profile.
           </p>
         </div>
@@ -32,7 +32,7 @@ export default function Login() {
         <div className="space-y-6">
           <button
             type="button"
-            className="group relative flex w-full items-center justify-center rounded-lg border border-gray-600 bg-white px-5 py-3 text-base font-semibold text-gray-700 shadow-md transition duration-200 hover:bg-gray-100 focus:outline-none focus:ring-4 focus:ring-indigo-500 focus:ring-offset-2 focus:ring-offset-gray-800"
+            className="group relative flex w-full items-center justify-center rounded-lg border border-gray-600 bg-teal-600 dark:bg-white px-5 py-3 text-base font-semibold text-gray-200 dark:text-gray-700 shadow-md transition duration-200 hover:bg-teal-500 hover:dark:bg-gray-100  focus:outline-none focus:ring-4 focus:ring-teal-500 focus:dark:ring-indigo-500 focus:ring-offset-2 focus:ring-offset-gray-800"
             onClick={handleLogin}
           >
             {/* Using Lucide's Chrome icon for Google */}
@@ -43,13 +43,13 @@ export default function Login() {
 
         {/* Legal and Registration Link */}
         <div className="mt-6 text-center text-sm">
-          <p className="text-gray-400 mb-2">
+          <p className="text-gray-600 dark:text-gray-400 mb-2">
             By signing in, you agree to our{" "}
-            <a href="/terms" className="font-medium text-indigo-400 hover:text-indigo-300">
+            <a href="/terms" className="font-medium text-teal-400 hover:text-teal-300">
               Terms
             </a>{" "}
             and{" "}
-            <a href="/privacy" className="font-medium text-indigo-400 hover:text-indigo-300">
+            <a href="/privacy" className="font-medium text-teal-400 hover:text-teal-300">
               Privacy Policy
             </a>
             .

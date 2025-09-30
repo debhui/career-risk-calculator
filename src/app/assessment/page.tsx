@@ -4,7 +4,7 @@ import React, { useEffect, useState } from "react";
 import { z } from "zod";
 // import { User as AuthUser } from "@supabase/supabase-js";
 import { createSupabaseClient } from "@/lib/supabase/browser";
-import { ShieldHalf, ArrowRight, ArrowLeft, Zap, CheckCircle } from "lucide-react";
+import { ShieldHalf, ArrowRight, ArrowLeft, Zap, CheckCircle, Loader2 } from "lucide-react";
 import { AssessmentProfile } from "@/components/AssessmentProfile";
 import { CareerAssessment } from "@/components/CareerAssessment";
 import { ResumeUpload } from "@/components/ResumeUpload";
@@ -80,6 +80,7 @@ export default function CombinedAssessmentPage() {
   const [hasFileUploadedHistorically, setHasFileUploadedHistorically] = useState(false);
   const [isResumeStepCompletedInFlow, setIsResumeStepCompletedInFlow] = useState(false);
   const [assessmentId, setAssessmentId] = useState<string>("");
+
   const onProfileSubmit = async (data: ProfileData) => {
     // Note: Supabase calls are mocked here as external file imports are not available.
     // Assuming 'supabase' is globally available or imported successfully.
@@ -247,7 +248,7 @@ export default function CombinedAssessmentPage() {
         }
       } catch (err: any) {
         console.error("Fetch data error:", err);
-        setError("Failed to load user data. Please try logging in again.");
+        setError("Failed to load user data. Please ensure you are logged in.");
       } finally {
         setIsLoading(false);
       }
@@ -257,155 +258,183 @@ export default function CombinedAssessmentPage() {
   }, [supabase]);
 
   return (
-    <div className="flex flex-col items-center p-4 sm:p-6 font-inter">
-      {/* flex flex-col items-center p-4 sm:p-6 font-inter */}
-      {/* max-w-4xl mx-auto p-4 sm:p-8 pt-12 */}
-      {/* Progress Bar */}
-      <nav className="flex items-center justify-between w-full max-w-2xl mb-10 text-center">
-        {steps.map((item, index) => (
-          <React.Fragment key={item.id}>
-            <div className="flex flex-col items-center flex-1">
-              <button
-                type="button"
-                onClick={() => handleStepClick(item.id)}
-                // Disable clicking ahead to unfinished steps
-                disabled={item.id > step && item.id > 1}
-                className={`flex flex-col items-center flex-1 transition-transform hover:scale-105 duration-200 ${
-                  item.id > step && item.id > 1 ? "cursor-not-allowed opacity-50" : "cursor-pointer"
-                }`}
-              >
-                <div
-                  className={`flex items-center justify-center w-10 h-10 rounded-full font-bold text-lg transition-all duration-300
-                    ${step > item.id ? "bg-indigo-600 text-white" : "bg-gray-700 text-gray-400"}
-                    ${step === item.id ? "bg-indigo-500 text-white ring-2 ring-indigo-500" : ""}
-                  `}
-                >
-                  {step > item.id ? <CheckCircle className="w-5 h-5" /> : item.id}
-                </div>
-                <span
-                  className={`mt-2 text-sm font-medium transition-colors duration-300
-                    ${step >= item.id ? "text-white" : "text-gray-400"}
-                  `}
-                >
-                  {item.name}
-                </span>
-              </button>
-            </div>
-            {index < steps.length - 1 && (
-              <div
-                className={`flex-1 h-1 mx-2 transition-colors duration-300 ${
-                  step > item.id ? "bg-indigo-600" : "bg-gray-700"
-                }`}
-              />
-            )}
-          </React.Fragment>
-        ))}
-      </nav>
-
-      {/* Dynamic Header based on Step */}
-      <header className="mb-10 text-center w-full max-w-2xl">
-        {step === 1 && (
-          <>
-            <ShieldHalf className="mx-auto mb-3 h-10 w-10 text-indigo-400" />
-            <h1 className="text-4xl font-extrabold text-white">
-              <span className="bg-gradient-to-r from-indigo-400 to-purple-400 bg-clip-text text-transparent">
-                Risk
-              </span>{" "}
-              Assessment Profile
-            </h1>
-            <p className="mt-2 text-lg font-light text-gray-400">
-              Tell us about your current role to calculate your career risk score.
-            </p>
-          </>
-        )}
-        {step === 2 && (
-          <>
-            <h1 className="text-4xl font-extrabold text-white">Resume</h1>
-            <p className="mt-2 text-lg text-gray-400">Upload your resume</p>
-          </>
-        )}
-        {step === 3 && (
-          <>
-            <Zap className="w-10 h-10 mx-auto text-yellow-400 mb-2" />
-            <h1 className="text-4xl font-extrabold text-white">Career Risk Assessment</h1>
-            <p className="mt-2 text-lg text-gray-400">
-              Answer these questions to calculate your current career risk score and identify areas
-              for optimization.
-            </p>
-          </>
-        )}
-      </header>
-
-      {/* Conditional Forms */}
-      {!isLoading && step === 1 ? (
-        <div className="w-full max-w-2xl bg-gray-800 p-8 rounded-2xl shadow-2xl border border-indigo-700/50">
-          <AssessmentProfile profile={profile} onProfileSubmit={onProfileSubmit} />
+    <div className="flex flex-col items-center p-4 sm:p-6 font-inter min-h-[calc(100vh-178px)]">
+      {/* --- Global Loading and Error State --- */}
+      {isLoading ? (
+        <div className="flex flex-col items-center justify-center w-full h-full min-h-[50vh] text-center">
+          <Loader2 className="w-8 h-8 mx-auto mb-4 animate-spin text-green-600 dark:text-green-400" />
+          <p>Loading assessment data...</p>
         </div>
-      ) : step === 2 ? (
-        <div className="w-full max-w-2xl bg-gray-800 p-8 rounded-2xl shadow-2xl border border-indigo-700/50">
+      ) : error ? (
+        <div className="flex flex-col items-center justify-center min-h-[50vh] text-center w-full max-w-2xl bg-red-900/20 p-8 rounded-xl shadow-xl border border-red-700">
+          <p className="text-lg font-semibold text-red-400 mb-2">Error Loading Data</p>
+          <p className="text-sm text-red-300">{error}</p>
           <button
-            type="button"
-            onClick={() => setStep(1)} // Go back to Step 1
-            className="inline-flex items-center text-sm font-medium text-indigo-400 hover:text-indigo-300 transition duration-150"
+            onClick={() => window.location.reload()}
+            className="mt-4 px-6 py-3 bg-red-600 rounded-xl text-white hover:bg-red-700 transition font-semibold"
           >
-            <ArrowLeft className="h-4 w-4 mr-1" />
-            Back to Profile
+            Reload Page
           </button>
-          <h2 className="text-2xl font-bold text-white border-b border-gray-700 pb-3 mt-4 mb-8">
-            Upload Resume for Deeper Analysis
-          </h2>
-          <ResumeUpload
-            onUploadSuccess={handleResumeSuccess}
-            onContinue={handleResumeContinue}
-            isResumeStepCompletedInFlow={isResumeStepCompletedInFlow}
-            hasFileUploadedHistorically={hasFileUploadedHistorically}
-          />
-        </div>
-      ) : step === 3 ? (
-        <div className="w-full max-w-2xl bg-gray-800 p-8 rounded-2xl shadow-2xl border border-indigo-700/50">
-          <button
-            type="button"
-            onClick={() => {
-              setStep(2);
-              setIsResumeStepCompletedInFlow(true);
-            }}
-            className="inline-flex items-center text-sm font-medium text-indigo-400 hover:text-indigo-300 transition duration-150"
-          >
-            <ArrowRight className="h-4 w-4 mr-1 rotate-180" />
-            Back to Resume
-          </button>
-          <CareerAssessment
-            assessmentFormData={assessmentFormData}
-            isAssessmentLoading={isAssessmentLoading}
-            submitStatus={submitStatus}
-            handleAssessmentChange={handleAssessmentChange}
-            handleAssessmentSubmit={handleAssessmentSubmit}
-          />
         </div>
       ) : (
-        <div className="flex flex-col items-center justify-center min-h-[50vh] text-center">
-          <h2 className="text-3xl font-bold text-white mb-4">Assessment Complete!</h2>
-          <p className="text-lg text-gray-400">
-            Thank you for completing your profile and assessment. Your results are being calculated.
-          </p>
-          {/* Grouped buttons for navigation */}
-          <div className="flex space-x-4 mt-6">
-            {/* <button
-              onClick={() => setStep(2)} // Go back to Step 2
-              className="inline-flex items-center px-6 py-3 text-gray-300 bg-gray-700 rounded-xl hover:bg-gray-600 transition font-semibold"
-            >
-              <ArrowRight className="h-4 w-4 mr-2 rotate-180" />
-              Back to Assessment
-            </button> */}
-            <a
-              href="/results"
-              className="inline-flex items-center px-6 py-3 text-white bg-indigo-600 rounded-xl hover:bg-indigo-700 transition font-semibold"
-            >
-              View My Results
-              <ArrowRight className="h-4 w-4 ml-2" />
-            </a>
-          </div>
-        </div>
+        /* --- Main Content (If Loaded) --- */
+        <>
+          {/* Progress Bar */}
+          <nav className="flex items-center justify-between w-full max-w-2xl mb-10 text-center">
+            {steps.map((item, index) => (
+              <React.Fragment key={item.id}>
+                <div className="flex flex-col items-center flex-1">
+                  <button
+                    type="button"
+                    onClick={() => handleStepClick(item.id)}
+                    // Disable clicking ahead to unfinished steps
+                    disabled={item.id > step && item.id > 1}
+                    className={`flex flex-col items-center flex-1 transition-transform hover:scale-105 duration-200 ${
+                      item.id > step && item.id > 1
+                        ? "cursor-not-allowed opacity-50"
+                        : "cursor-pointer"
+                    }`}
+                  >
+                    <div
+                      className={`flex items-center justify-center w-10 h-10 rounded-full font-bold text-lg transition-all duration-300
+                        ${
+                          step > item.id
+                            ? "bg-teal-600 dark:bg-indigo-600 text-white"
+                            : "bg-gray-700 text-gray-400"
+                        }
+                        ${
+                          step === item.id
+                            ? "bg-teal-500 dark:bg-indigo-500 text-white ring-2 ring-teal-500 dark:ring-indigo-500"
+                            : ""
+                        }
+                      `}
+                    >
+                      {step > item.id ? <CheckCircle className="w-5 h-5" /> : item.id}
+                    </div>
+                    <span
+                      className={`mt-2 text-sm font-medium transition-colors duration-300
+                        ${step >= item.id ? "text-gray-800 dark:text-white" : "text-gray-400"}
+                      `}
+                    >
+                      {item.name}
+                    </span>
+                  </button>
+                </div>
+                {index < steps.length - 1 && (
+                  <div
+                    className={`flex-1 h-1 mx-2 transition-colors duration-300 ${
+                      step > item.id
+                        ? "bg-teal-600 dark:bg-indigo-600"
+                        : "bg-gray-400 dark:bg-gray-700"
+                    }`}
+                  />
+                )}
+              </React.Fragment>
+            ))}
+          </nav>
+
+          {/* Dynamic Header based on Step */}
+          <header className="mb-10 text-center w-full max-w-2xl">
+            {step === 1 && (
+              <>
+                <ShieldHalf className="mx-auto mb-3 h-10 w-10 text-indigo-400" />
+                <h1 className="text-4xl font-extrabold text-gray-800 dark:text-white">
+                  <span className="bg-gradient-to-r from-indigo-400 to-purple-400 bg-clip-text text-transparent">
+                    Risk
+                  </span>{" "}
+                  Assessment Profile
+                </h1>
+                <p className="mt-2 text-lg font-light text-gray-400">
+                  Tell us about your current role to calculate your career risk score.
+                </p>
+              </>
+            )}
+            {step === 2 && (
+              <>
+                <h1 className="text-4xl font-extrabold text-gray-800 dark:text-white">Resume</h1>
+                <p className="mt-2 text-lg text-gray-400">Upload your resume</p>
+              </>
+            )}
+            {step === 3 && (
+              <>
+                <Zap className="w-10 h-10 mx-auto text-yellow-400 mb-2" />
+                <h1 className="text-4xl font-extrabold text-gray-800 dark:text-white">
+                  Career Risk Assessment
+                </h1>
+                <p className="mt-2 text-lg text-gray-400 dark:text-gray-400">
+                  Answer these questions to calculate your current career risk score and identify
+                  areas for optimization.
+                </p>
+              </>
+            )}
+          </header>
+
+          {/* Conditional Forms */}
+          {step === 1 ? (
+            <div className="w-full max-w-2xl bg-gray-200 dark:bg-gray-800 p-8 rounded-2xl shadow-2xl border border-gray-300 dark:border-indigo-700/50">
+              <AssessmentProfile profile={profile} onProfileSubmit={onProfileSubmit} />
+            </div>
+          ) : step === 2 ? (
+            <div className="w-full max-w-2xl bg-gray-200 dark:bg-gray-800  p-8 rounded-2xl shadow-2xl border border-gray-300 dark:border-indigo-700/50">
+              <button
+                type="button"
+                onClick={() => setStep(1)} // Go back to Step 1
+                className="inline-flex items-center text-sm font-medium text-teal-500 dark:text-indigo-400 hover:text-teal-300 hover:dark:text-indigo-300 transition duration-150"
+              >
+                <ArrowLeft className="h-4 w-4 mr-1" />
+                Back to Profile
+              </button>
+              <h2 className="text-2xl font-bold text-gray-800 dark:text-white border-b border-gray-300 dark:border-gray-700 pb-3 mt-4 mb-8">
+                Upload Resume for Deeper Analysis
+              </h2>
+              <ResumeUpload
+                onUploadSuccess={handleResumeSuccess}
+                onContinue={handleResumeContinue}
+                isResumeStepCompletedInFlow={isResumeStepCompletedInFlow}
+                hasFileUploadedHistorically={hasFileUploadedHistorically}
+              />
+            </div>
+          ) : step === 3 ? (
+            <div className="w-full max-w-2xl bg-gray-200 dark:bg-gray-800  p-8 rounded-2xl shadow-2xl border border-gray-300 dark:border-indigo-700/50">
+              <button
+                type="button"
+                onClick={() => {
+                  setStep(2);
+                  setIsResumeStepCompletedInFlow(true);
+                }}
+                className="inline-flex items-center text-sm font-medium text-teal-500 dark:text-indigo-400 hover:text-teal-300 hover:dark:text-indigo-300 transition duration-150"
+              >
+                <ArrowRight className="h-4 w-4 mr-1 rotate-180" />
+                Back to Resume
+              </button>
+              <CareerAssessment
+                assessmentFormData={assessmentFormData}
+                isAssessmentLoading={isAssessmentLoading}
+                submitStatus={submitStatus}
+                handleAssessmentChange={handleAssessmentChange}
+                handleAssessmentSubmit={handleAssessmentSubmit}
+              />
+            </div>
+          ) : (
+            <div className="flex flex-col items-center justify-center min-h-[50vh] text-center">
+              <h2 className="text-3xl font-bold text-white mb-4">Assessment Complete!</h2>
+              <p className="text-lg text-gray-400">
+                Thank you for completing your profile and assessment. Your results are being
+                calculated.
+              </p>
+              {/* Grouped buttons for navigation */}
+              <div className="flex space-x-4 mt-6">
+                <a
+                  href="/results"
+                  className="inline-flex items-center px-6 py-3 text-white bg-teal-600 dark:bg-indigo-600 rounded-xl hover:bg-teal-700 hover:dark:bg-indigo-700 transition font-semibold"
+                >
+                  View My Results
+                  <ArrowRight className="h-4 w-4 ml-2" />
+                </a>
+              </div>
+            </div>
+          )}
+        </>
       )}
     </div>
   );

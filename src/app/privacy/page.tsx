@@ -1,19 +1,23 @@
-// privacy/page.tsx
 "use client";
 
 import React from "react";
 
 export default function PrivacyPage() {
   return (
-    <div className="text-white py-12 px-4 sm:px-6 lg:px-8">
-      <div className="max-w-4xl mx-auto bg-gray-800 p-8 rounded-xl shadow-2xl border border-indigo-700/50">
-        <h1 className="text-4xl font-extrabold text-white mb-2">Privacy Policy</h1>
-        <p className="text-sm text-gray-400 mb-8">Effective Date: September 27, 2025</p>
+    <div className="bg-white dark:bg-gray-900 text-gray-900 dark:text-white min-h-screen transition-colors duration-300 py-12 px-4 sm:px-6 lg:px-8">
+      <div className="max-w-4xl mx-auto bg-gray-100 dark:bg-gray-800 p-8 rounded-xl shadow-2xl border border-teal-500/50 dark:border-indigo-700/50 transition-colors duration-300">
+        <div className="flex justify-between items-start mb-6">
+          <h1 className="text-4xl font-extrabold text-gray-900 dark:text-white">Privacy Policy</h1>
+        </div>
 
-        <div className="space-y-8 text-gray-300">
+        <p className="text-sm text-gray-600 dark:text-gray-400 mb-8">
+          Effective Date: September 27, 2025
+        </p>
+
+        <div className="space-y-8 text-gray-700 dark:text-gray-300">
           {/* Introduction */}
           <section>
-            <h2 className="text-2xl font-bold text-indigo-400 mb-3 border-b border-gray-700 pb-1">
+            <h2 className="text-2xl font-bold text-teal-600 dark:text-indigo-400 mb-3 border-b border-gray-300 dark:border-gray-700 pb-1">
               1. Introduction
             </h2>
             <p>
@@ -27,7 +31,7 @@ export default function PrivacyPage() {
 
           {/* Information We Collect */}
           <section>
-            <h2 className="text-2xl font-bold text-indigo-400 mb-3 border-b border-gray-700 pb-1">
+            <h2 className="text-2xl font-bold text-teal-600 dark:text-indigo-400 mb-3 border-b border-gray-300 dark:border-gray-700 pb-1">
               2. Information We Collect
             </h2>
             <ul className="list-disc list-inside space-y-3 ml-4">
@@ -49,7 +53,7 @@ export default function PrivacyPage() {
 
           {/* How We Use Information */}
           <section>
-            <h2 className="text-2xl font-bold text-indigo-400 mb-3 border-b border-gray-700 pb-1">
+            <h2 className="text-2xl font-bold text-teal-600 dark:text-indigo-400 mb-3 border-b border-gray-300 dark:border-gray-700 pb-1">
               3. How We Use Your Information
             </h2>
             <p>We use the information we collect for the following purposes:</p>
@@ -68,7 +72,7 @@ export default function PrivacyPage() {
 
           {/* Data Sharing and Disclosure */}
           <section>
-            <h2 className="text-2xl font-bold text-indigo-400 mb-3 border-b border-gray-700 pb-1">
+            <h2 className="text-2xl font-bold text-teal-600 dark:text-indigo-400 mb-3 border-b border-gray-300 dark:border-gray-700 pb-1">
               4. Data Sharing and Disclosure
             </h2>
             <p>
@@ -94,7 +98,7 @@ export default function PrivacyPage() {
 
           {/* Data Security and Retention */}
           <section>
-            <h2 className="text-2xl font-bold text-indigo-400 mb-3 border-b border-gray-700 pb-1">
+            <h2 className="text-2xl font-bold text-teal-600 dark:text-indigo-400 mb-3 border-b border-gray-300 dark:border-gray-700 pb-1">
               5. Data Security and Retention
             </h2>
             <p>
@@ -107,7 +111,7 @@ export default function PrivacyPage() {
 
           {/* Your Data Rights */}
           <section>
-            <h2 className="text-2xl font-bold text-indigo-400 mb-3 border-b border-gray-700 pb-1">
+            <h2 className="text-2xl font-bold text-teal-600 dark:text-indigo-400 mb-3 border-b border-gray-300 dark:border-gray-700 pb-1">
               6. Your Data Rights
             </h2>
             <p>
@@ -119,14 +123,14 @@ export default function PrivacyPage() {
 
           {/* Contact Us */}
           <section>
-            <h2 className="text-2xl font-bold text-indigo-400 mb-3 border-b border-gray-700 pb-1">
+            <h2 className="text-2xl font-bold text-teal-600 dark:text-indigo-400 mb-3 border-b border-gray-300 dark:border-gray-700 pb-1">
               7. Contact Us
             </h2>
             <p>
               If you have any questions about this Privacy Policy, please contact us at:{" "}
               <a
                 href="mailto:privacy@example.com"
-                className="text-indigo-400 hover:text-indigo-300"
+                className="text-teal-600 dark:text-indigo-400 hover:text-indigo-500 dark:hover:text-indigo-300 transition-colors duration-300"
               >
                 privacy@example.com
               </a>

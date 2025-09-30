@@ -49,16 +49,16 @@ export function UserMenu({ userEmail, avatarUrl }: UserMenuProps) {
     <div className="relative" ref={dropdownRef}>
       <button
         onClick={() => setIsDropdownOpen(!isDropdownOpen)}
-        className="flex items-center space-x-2 text-white p-2 rounded-full hover:bg-gray-700 transition"
+        className="flex items-center space-x-2 text-gray-800 dark:text-white p-2 rounded-full hover:bg-gray-300 hover:dark:bg-gray-700 transition"
       >
-        <div className="w-8 h-8 rounded-full bg-gray-500 flex items-center justify-center text-sm font-semibold">
+        <div className="w-8 h-8 rounded-full dark:bg-gray-500 flex items-center justify-center text-sm font-semibold">
           {/* {getInitials(userEmail || "")} */}
 
           {avatarUrl ? (
             <Image
               src={avatarUrl}
               alt={getInitials(userEmail || "")}
-              className="w-8 h-8 rounded-full object-cover border-2 border-indigo-500"
+              className="w-8 h-8 rounded-full object-cover border-2 border-teal-500 dark:border-indigo-500"
               onError={e => {
                 (e.target as HTMLImageElement).onerror = null;
                 (e.target as HTMLImageElement).src =
@@ -68,7 +68,7 @@ export function UserMenu({ userEmail, avatarUrl }: UserMenuProps) {
               height={100}
             />
           ) : (
-            <div className="w-8 h-8 rounded-full bg-indigo-600 flex items-center justify-center text-white text-md font-bold  shrink-0">
+            <div className="w-8 h-8 rounded-full bg-teal-600 dark:bg-indigo-600 flex items-center justify-center text-white text-md font-bold  shrink-0">
               {getInitials(userEmail || "U")}
             </div>
           )}
@@ -77,10 +77,10 @@ export function UserMenu({ userEmail, avatarUrl }: UserMenuProps) {
       </button>
 
       {isDropdownOpen && (
-        <div className="absolute right-0 mt-2 w-48 bg-gray-700 rounded-md shadow-lg py-1 z-50">
+        <div className="absolute right-0 mt-2 w-48 bg-gray-300 dark:bg-gray-700 rounded-md shadow-lg py-1 z-50">
           <Link
             href="/profile"
-            className="flex items-center px-4 py-2 text-sm text-gray-300 hover:bg-gray-600"
+            className="flex items-center px-4 py-2 text-sm text-gray-800 dark:text-gray-300 hover:bg-gray-400 hover:dark:bg-gray-600"
             onClick={() => setIsDropdownOpen(false)}
           >
             <User className="w-4 h-4 mr-2" />
@@ -88,7 +88,7 @@ export function UserMenu({ userEmail, avatarUrl }: UserMenuProps) {
           </Link>
           <button
             onClick={handleSignOut}
-            className="w-full text-left flex items-center px-4 py-2 text-sm text-red-400 hover:bg-gray-600"
+            className="w-full text-left flex items-center px-4 py-2 text-sm text-red-500 dark:text-red-400 hover:bg-gray-400 hover:dark:bg-gray-600"
           >
             <LogOut className="w-4 h-4 mr-2" />
             Logout

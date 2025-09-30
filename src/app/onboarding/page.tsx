@@ -51,7 +51,7 @@ export default function OnboardingPage() {
     }
 
     setMessage("Consent accepted! Redirecting...");
-    router.push("/assessment-profile");
+    router.push("/assessment");
   }, [router, supabase]);
 
   // const handleConsent = async () => {
@@ -100,26 +100,26 @@ export default function OnboardingPage() {
   // );
 
   return (
-    <div className="min-h-[calc(100vh-200px)] bg-gray-900 flex items-center justify-center p-4 sm:p-6">
+    <div className="min-h-[calc(100vh-178px)] bg-white dark:bg-gray-900 flex items-center justify-center p-4 sm:p-6">
       {/* Container Card */}
-      <div className="w-full max-w-2xl bg-gray-800 rounded-2xl shadow-2xl p-6 sm:p-10 border border-gray-700 space-y-8">
+      <div className="w-full max-w-2xl bg-gray-200 dark:bg-gray-800 rounded-2xl shadow-2xl p-6 sm:p-10 border border-gray-300 dark:border-gray-700 space-y-8">
         {/* Header */}
         <div className="flex items-center space-x-4 border-b border-gray-700 pb-6">
-          <ShieldCheck className="w-10 h-10 text-green-400" />
-          <h1 className="text-3xl sm:text-4xl font-extrabold text-white tracking-tight">
+          <ShieldCheck className="w-10 h-10 text-teal-400 dark:text-green-400" />
+          <h1 className="text-3xl sm:text-4xl font-extrabold text-gray-800 dark:text-white tracking-tight">
             Data Consent & Privacy
           </h1>
         </div>
 
         {/* Content Section */}
-        <div className="space-y-6 text-gray-300">
+        <div className="space-y-6 text-gray-600 dark:text-gray-300">
           <p className="text-lg">
             Welcome to the Career Risk Calculator. Before proceeding, please review our commitment
             to your data privacy.
           </p>
 
-          <div className="space-y-4 p-4 border border-gray-700 rounded-xl bg-gray-700/50">
-            <h2 className="flex items-center text-xl font-semibold text-green-400 mb-3">
+          <div className="space-y-4 p-4 border border-gray-700 rounded-xl bg-gray-300 dark:bg-gray-700/50">
+            <h2 className="flex items-center text-xl font-semibold text-teal-500 dark:text-green-400 mb-3">
               <BookOpenText className="w-5 h-5 mr-2" />
               How We Use Your Data
             </h2>

@@ -1,19 +1,25 @@
-// terms/page.tsx
 "use client";
 
 import React from "react";
 
 export default function TermsPage() {
   return (
-    <div className=" text-white py-12 px-4 sm:px-6 lg:px-8 ">
-      <div className="max-w-4xl mx-auto bg-gray-800 p-8 rounded-xl shadow-2xl border border-indigo-700/50">
-        <h1 className="text-4xl font-extrabold text-white mb-2">Terms of Service</h1>
-        <p className="text-sm text-gray-400 mb-8">Last Updated: September 27, 2025</p>
+    <div className="bg-white dark:bg-gray-900 text-gray-900 dark:text-white min-h-screen transition-colors duration-300 py-12 px-4 sm:px-6 lg:px-8">
+      <div className="max-w-4xl mx-auto bg-gray-100 dark:bg-gray-800 p-8 rounded-xl shadow-2xl border border-teal-500/50 dark:border-indigo-700/50 transition-colors duration-300">
+        <div className="flex justify-between items-start mb-6">
+          <h1 className="text-4xl font-extrabold text-gray-900 dark:text-white">
+            Terms of Service
+          </h1>
+        </div>
 
-        <div className="space-y-6 text-gray-300">
+        <p className="text-sm text-gray-600 dark:text-gray-400 mb-8">
+          Last Updated: September 27, 2025
+        </p>
+
+        <div className="space-y-6 text-gray-700 dark:text-gray-300">
           {/* Acceptance of Terms */}
           <section>
-            <h2 className="text-2xl font-bold text-indigo-400 mb-3 border-b border-gray-700 pb-1">
+            <h2 className="text-2xl font-bold text-teal-600 dark:text-indigo-400 mb-3 border-b border-gray-300 dark:border-gray-700 pb-1">
               1. Acceptance of Terms
             </h2>
             <p>
@@ -26,7 +32,7 @@ export default function TermsPage() {
 
           {/* Use of Service */}
           <section>
-            <h2 className="text-2xl font-bold text-indigo-400 mb-3 border-b border-gray-700 pb-1">
+            <h2 className="text-2xl font-bold text-teal-600 dark:text-indigo-400 mb-3 border-b border-gray-300 dark:border-gray-700 pb-1">
               2. Use of Service
             </h2>
             <ul className="list-disc list-inside space-y-2 ml-4">
@@ -48,7 +54,7 @@ export default function TermsPage() {
 
           {/* Intellectual Property */}
           <section>
-            <h2 className="text-2xl font-bold text-indigo-400 mb-3 border-b border-gray-700 pb-1">
+            <h2 className="text-2xl font-bold text-teal-600 dark:text-indigo-400 mb-3 border-b border-gray-300 dark:border-gray-700 pb-1">
               3. Intellectual Property
             </h2>
             <p>
@@ -61,7 +67,7 @@ export default function TermsPage() {
 
           {/* Termination */}
           <section>
-            <h2 className="text-2xl font-bold text-indigo-400 mb-3 border-b border-gray-700 pb-1">
+            <h2 className="text-2xl font-bold text-teal-600 dark:text-indigo-400 mb-3 border-b border-gray-300 dark:border-gray-700 pb-1">
               4. Termination
             </h2>
             <p>
@@ -75,7 +81,7 @@ export default function TermsPage() {
 
           {/* Limitation of Liability */}
           <section>
-            <h2 className="text-2xl font-bold text-indigo-400 mb-3 border-b border-gray-700 pb-1">
+            <h2 className="text-2xl font-bold text-teal-600 dark:text-indigo-400 mb-3 border-b border-gray-300 dark:border-gray-700 pb-1">
               5. Limitation of Liability
             </h2>
             <p>
@@ -92,7 +98,7 @@ export default function TermsPage() {
 
           {/* Governing Law */}
           <section>
-            <h2 className="text-2xl font-bold text-indigo-400 mb-3 border-b border-gray-700 pb-1">
+            <h2 className="text-2xl font-bold text-teal-600 dark:text-indigo-400 mb-3 border-b border-gray-300 dark:border-gray-700 pb-1">
               6. Governing Law
             </h2>
             <p>

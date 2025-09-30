@@ -41,10 +41,10 @@ const FormField: React.FC<{ label: string; description: string; children: React.
   children,
 }) => (
   <div className="space-y-2 border-b border-gray-700 pb-6">
-    <label className="block text-base font-medium text-white">
+    <label className="block text-base font-medium text-gray-800 dark:text-white">
       {label} <span className="text-red-500">*</span>
     </label>
-    <p className="text-sm text-gray-400">{description}</p>
+    <p className="text-sm text-gray-500 dark:text-gray-400">{description}</p>
     <div className="mt-1">{children}</div>
   </div>
 );
@@ -105,7 +105,7 @@ export function CareerAssessment({
         Back to Profile
       </button> */}
       {/* <div className="flex flex-row justify-center"> */}
-      <h2 className="text-2xl font-bold text-white border-b border-gray-700 pb-3 mt-4 mb-8">
+      <h2 className="text-2xl font-bold text-gray-800 dark:text-white border-b border-gray-300 dark:border-gray-700 pb-3 mt-4 mb-8">
         Your Current Role
       </h2>
       {/* </div> */}
@@ -166,7 +166,7 @@ export function CareerAssessment({
           options={ageOptions}
         />
       </FormField>
-      <h2 className="text-2xl font-bold text-white border-b border-gray-700 pb-3 pt-6 mt-4 mb-8">
+      <h2 className="text-2xl font-bold text-gray-800 dark:text-white border-b border-gray-300 dark:border-gray-700 pb-3 pt-6 mt-4 mb-8">
         Background & Preferences
       </h2>
       <FormField label="Education" description="Highest education completed.">
@@ -179,11 +179,11 @@ export function CareerAssessment({
                 type="radio"
                 checked={assessmentFormData.education === option}
                 onChange={() => handleAssessmentChange("education", option)}
-                className="h-4 w-4 text-indigo-600 border-gray-300 focus:ring-indigo-500 bg-gray-700"
+                className="h-4 w-4 text-teal-600 dark:text-indigo-600 border-gray-300 focus:ring-teal-500 focus:dark:ring-indigo-500 bg-gray-700"
               />
               <label
                 htmlFor={`edu-${option}`}
-                className="ml-3 block text-sm font-medium text-gray-300"
+                className="ml-3 block text-sm font-medium text-gray-600 dark:text-gray-300"
               >
                 {option}
               </label>
@@ -201,11 +201,11 @@ export function CareerAssessment({
                 type="radio"
                 checked={assessmentFormData.location === option}
                 onChange={() => handleAssessmentChange("location", option)}
-                className="h-4 w-4 text-indigo-600 border-gray-300 focus:ring-indigo-500 bg-gray-700"
+                className="h-4 w-4 text-teal-600 dark:text-indigo-600 border-gray-300 focus:ring-teal-500 focus:dark:ring-indigo-500 bg-gray-700"
               />
               <label
                 htmlFor={`loc-${option}`}
-                className="ml-3 block text-sm font-medium text-gray-300"
+                className="ml-3 block text-sm font-medium text-gray-600 dark:text-gray-300"
               >
                 {option}
               </label>
@@ -232,11 +232,11 @@ export function CareerAssessment({
                 type="radio"
                 checked={assessmentFormData.workPreference === option}
                 onChange={() => handleAssessmentChange("workPreference", option)}
-                className="h-4 w-4 text-indigo-600 border-gray-300 focus:ring-indigo-500 bg-gray-700"
+                className="h-4 w-4 text-teal-600 dark:text-indigo-600 border-gray-300 focus:ring-teal-500 focus:dark:ring-indigo-500 bg-gray-700"
               />
               <label
                 htmlFor={`work-${option}`}
-                className="ml-3 block text-sm font-medium text-gray-300"
+                className="ml-3 block text-sm font-medium text-gray-600 dark:text-gray-300"
               >
                 {option}
               </label>
@@ -244,7 +244,7 @@ export function CareerAssessment({
           ))}
         </div>
       </FormField>
-      <h2 className="text-2xl font-bold text-white border-b border-gray-700 pb-3 pt-6 mt-4 mb-8">
+      <h2 className="text-2xl font-bold text-gray-800 dark:text-white border-b border-gray-300 dark:border-gray-700 pb-3 pt-6 mt-4 mb-8">
         Skills & Certification
       </h2>
       <FormField label="Recent Training" description="e.g., AWS CCP, Data Ethics Course">
@@ -253,7 +253,7 @@ export function CareerAssessment({
           type="text"
           value={assessmentFormData.recentTraining}
           onChange={e => handleAssessmentChange("recentTraining", e.target.value)}
-          className="mt-1 block w-full border border-gray-600 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm bg-gray-700 text-white"
+          className="mt-1 block w-full border border-gray-400 dark:border-gray-600 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-indigo-500 focus:border-teal-500 focus:dark:border-indigo-500 sm:text-sm bg-gray-300 dark:bg-gray-700 text-gray-800 dark:text-white"
           placeholder="e.g., AWS Certified Cloud Practitioner"
         />
       </FormField>
@@ -276,11 +276,11 @@ export function CareerAssessment({
                       : [...(assessmentFormData.certifications || []), cert]
                   )
                 }
-                className="h-4 w-4 text-indigo-600 border-gray-300 rounded focus:ring-indigo-500 bg-gray-700"
+                className="h-4 w-4 text-teal-600 dark:text-indigo-600 border-gray-800 dark:border-gray-300 rounded focus:ring-teal-500 focus:dark:ring-indigo-500 bg-gray-300 dark:bg-gray-700"
               />
               <label
                 htmlFor={`cert-${cert}`}
-                className="ml-3 block text-sm font-medium text-gray-300"
+                className="ml-3 block text-sm font-medium text-gray-600 dark:text-gray-300"
               >
                 {cert}
               </label>
@@ -313,7 +313,7 @@ export function CareerAssessment({
         <button
           type="submit"
           disabled={isAssessmentLoading}
-          className="mt-4 flex w-full items-center justify-center rounded-xl bg-indigo-600 py-3 px-4 text-lg font-bold text-white shadow-xl shadow-indigo-600/30 transition-all duration-300 hover:bg-indigo-700 disabled:bg-indigo-400 disabled:cursor-not-allowed"
+          className="mt-4 flex w-full items-center justify-center rounded-xl bg-teal-600 dark:bg-indigo-600 py-3 px-4 text-lg font-bold text-white shadow-xl shadow-teal-600/30 dark:shadow-indigo-600/30 transition-all duration-300 hover:bg-teal-700 hover:dark:bg-indigo-700 disabled:bg-teal-400  disabled:dark:bg-indigo-400 disabled:cursor-not-allowed"
         >
           {isAssessmentLoading ? (
             <Loader2 className="w-5 h-5 mr-3 animate-spin" />

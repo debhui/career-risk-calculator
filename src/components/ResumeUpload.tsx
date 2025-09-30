@@ -181,15 +181,19 @@ export const ResumeUpload: React.FC<ResumeUploadProps> = ({
   const isFileSelectionDisabled = isUploading;
 
   const statusMap = {
-    idle: { icon: FileUp, color: "text-indigo-400", message: "Accepted format: PDF (Max 5MB)" },
+    idle: {
+      icon: FileUp,
+      color: "text-teal-600 dark:text-indigo-400",
+      message: "Accepted format: PDF (Max 5MB)",
+    },
     selected: {
       icon: CheckCircle,
-      color: "text-yellow-400",
+      color: "text-yellow-600 dark:text-yellow-400",
       message: `${file?.name} ready to upload.`,
     },
     success: {
       icon: CheckCircle,
-      color: "text-green-400",
+      color: "text-green-600 dark:text-green-400",
       message: "Resume ready. Click 'Continue' or select a new file to update.",
     },
     error: { icon: XCircle, color: "text-red-400", message: errorMessage || "Upload failed." },
@@ -202,8 +206,8 @@ export const ResumeUpload: React.FC<ResumeUploadProps> = ({
     p-6 space-y-4 rounded-xl transition-all duration-300
     ${
       isDragging
-        ? "border-indigo-500 bg-gray-700 border-solid"
-        : "border-gray-700 bg-gray-900/50 border-dashed"
+        ? "border-teal-500 dark:border-indigo-500 bg-gray-300 dark:bg-gray-700 border-solid"
+        : "border-teal-500 dark:border-gray-700 bg-gray-300 dark:bg-gray-900/50 border-dashed"
     }
     border-2
   `;
@@ -217,14 +221,16 @@ export const ResumeUpload: React.FC<ResumeUploadProps> = ({
     >
       {/* Drag & Drop Visual Indicator */}
       {isDragging && (
-        <div className="absolute inset-0 z-10 flex flex-col items-center justify-center bg-gray-900/80 rounded-xl pointer-events-none">
-          <MousePointer className="w-12 h-12 text-indigo-400 animate-bounce" />{" "}
-          <p className="mt-2 text-xl font-semibold text-indigo-300">Drop your PDF resume here</p>
+        <div className="absolute inset-0 z-10 flex flex-col items-center justify-center bg-gray-400 dark:bg-gray-900/80 rounded-xl pointer-events-none">
+          <MousePointer className="w-12 h-12 text-teal-400 dark:text-indigo-400 animate-bounce" />{" "}
+          <p className="mt-2 text-xl font-semibold text-teal-300 dark:text-indigo-300">
+            Drop your PDF resume here
+          </p>
         </div>
       )}
 
       <div className={`relative ${isDragging ? "opacity-50 pointer-events-none" : ""}`}>
-        <div className="flex flex-col items-center justify-center space-y-2 text-gray-400 mb-4">
+        <div className="flex flex-col items-center justify-center space-y-2 text-gray-600 dark:text-gray-400 mb-4">
           <FileUp className="w-8 h-8" />
           <p className="text-sm font-medium">Drag & Drop or Choose File</p>
         </div>
@@ -246,7 +252,7 @@ export const ResumeUpload: React.FC<ResumeUploadProps> = ({
                             ${
                               showContinueButton
                                 ? "bg-green-600 cursor-default"
-                                : "bg-indigo-600 hover:bg-indigo-700 cursor-pointer"
+                                : "bg-teal-600 dark:bg-indigo-600 hover:bg-teal-700 hover:dark:bg-indigo-700 cursor-pointer"
                             }
                         `}
             >
@@ -266,11 +272,11 @@ export const ResumeUpload: React.FC<ResumeUploadProps> = ({
             <button
               onClick={handleUpload}
               disabled={isUploadButtonDisabled}
-              className={`mt-2 flex w-full items-center justify-center rounded-xl py-3 px-4 text-lg font-bold text-white shadow-xl shadow-indigo-600/30 transition-all duration-300 hover:bg-indigo-700 
+              className={`mt-2 flex w-full items-center justify-center rounded-xl py-3 px-4 text-lg font-bold text-white shadow-xl shadow-teal-600/30 dark:shadow-indigo-600/30 transition-all duration-300 hover:bg-teal-700 dark:hover:bg-indigo-700 
                                 ${
                                   isUploadButtonDisabled
-                                    ? "bg-indigo-400 cursor-not-allowed"
-                                    : "bg-indigo-600"
+                                    ? "bg-teal-700 dark:bg-indigo-400 cursor-not-allowed"
+                                    : "bg-teal-600 dark:bg-indigo-600"
                                 }
                             `}
             >

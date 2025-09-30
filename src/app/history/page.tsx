@@ -1,4 +1,3 @@
-// history/page.tsx
 "use client";
 
 import React, { useState, useEffect } from "react";
@@ -26,8 +25,6 @@ export default function HistoryPage() {
   const [assessmentList, setAssessmentList] = useState<AssessmentItem[]>([]);
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
-
-  // State to track the ID of the currently expanded assessment
   const [expandedId, setExpandedId] = useState<string | null>(null);
 
   /**
@@ -82,16 +79,16 @@ export default function HistoryPage() {
 
   if (isLoading) {
     return (
-      <div className="max-w-4xl mx-auto p-4 sm:p-8 pt-12 text-center text-gray-400">
-        <Loader2 className="w-8 h-8 mx-auto mb-4 animate-spin text-green-400" />
-        <p>Loading assessments...</p>
+      <div className="max-w-4xl mx-auto p-4 sm:p-8 pt-12 text-center text-gray-600 dark:text-gray-400">
+        <Loader2 className="w-8 h-8 mx-auto mb-4 animate-spin text-green-600 dark:text-green-400" />
+        <p>Loading history...</p>
       </div>
     );
   }
 
   if (error) {
     return (
-      <div className="max-w-4xl mx-auto p-4 sm:p-8 pt-12 text-center text-red-400">
+      <div className="max-w-4xl mx-auto p-4 sm:p-8 pt-12 text-center text-red-600 dark:text-red-400">
         <p>Error: {error}</p>
       </div>
     );
@@ -99,7 +96,7 @@ export default function HistoryPage() {
 
   if (!isAuthenticated) {
     return (
-      <div className="max-w-4xl mx-auto p-4 sm:p-8 pt-12 text-center text-yellow-400">
+      <div className="max-w-4xl mx-auto p-4 sm:p-8 pt-12 text-center text-yellow-600 dark:text-yellow-400">
         <p className="text-xl font-semibold">Please log in to view your assessment history.</p>
       </div>
     );
@@ -107,42 +104,51 @@ export default function HistoryPage() {
 
   // --- Main Render ---
   return (
-    <div>
+    <div className="bg-white dark:bg-gray-900 text-gray-900 dark:text-white min-h-[calc(100vh-178px)] transition-colors duration-300">
       <div className="max-w-4xl mx-auto p-4 sm:p-8 pt-12">
-        <h1 className="text-3xl font-extrabold text-white mb-8 border-b border-gray-700 pb-3 flex items-center">
-          <Clock className="w-6 h-6 mr-3 text-green-400" />
-          Assessment History
-        </h1>
+        <div className="flex justify-between items-center mb-8 border-b border-gray-200 dark:border-gray-700 pb-3">
+          <h1 className="text-3xl font-extrabold flex items-center">
+            <Clock className="w-6 h-6 mr-3 text-green-600 dark:text-green-400" />
+            Assessment History
+          </h1>
+        </div>
 
         {assessmentList.length === 0 ? (
-          <div className="text-center py-10 border-2 border-dashed border-gray-700 rounded-lg">
-            <ListX className="w-10 h-10 mx-auto text-gray-500 mb-3" />
-            <p className="text-lg font-medium text-gray-400">No assessments found.</p>
+          <div className="text-center py-10 border-2 border-dashed border-gray-300 dark:border-gray-700 rounded-lg">
+            <ListX className="w-10 h-10 mx-auto text-gray-400 dark:text-gray-500 mb-3" />
+            <p className="text-lg font-medium text-gray-600 dark:text-gray-400">
+              No assessments found.
+            </p>
           </div>
         ) : (
           <ul className="space-y-4">
             {assessmentList.map(item => {
               const isExpanded = item.id === expandedId;
               return (
-                <li key={item.id} className="bg-gray-800 rounded-lg shadow-xl overflow-hidden">
+                <li
+                  key={item.id}
+                  className="bg-gray-200 dark:bg-gray-800 rounded-lg shadow-xl overflow-hidden border border-gray-200 dark:border-gray-800 transition-shadow duration-300"
+                >
                   {/* Summary Header - Always visible */}
                   <div
-                    className="p-4 flex justify-between items-center cursor-pointer hover:bg-gray-700 transition duration-150"
+                    className="p-4 flex justify-between items-center cursor-pointer hover:bg-gray-200 dark:hover:bg-gray-700 transition duration-150"
                     onClick={() => handleToggleExpand(item.id)}
                   >
                     <div>
-                      <p className="text-xl font-bold text-green-400">{item.job_role}</p>
-                      <p className="text-sm text-gray-400 mt-1">
+                      <p className="text-xl font-bold text-teal-500 dark:text-green-400">
+                        {item.job_role}
+                      </p>
+                      <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">
                         **{item.industry}** &bull; {item.experience}
                       </p>
-                      <p className="text-xs text-gray-500 mt-1">
+                      <p className="text-xs text-gray-500 dark:text-gray-500 mt-1">
                         Submitted: {new Date(item.submitted_at).toLocaleDateString()}
                       </p>
                     </div>
                     {isExpanded ? (
-                      <ChevronUp className="w-5 h-5 text-green-400" />
+                      <ChevronUp className="w-5 h-5 text-green-600 dark:text-green-400" />
                     ) : (
-                      <ChevronDown className="w-5 h-5 text-gray-400" />
+                      <ChevronDown className="w-5 h-5 text-gray-500 dark:text-gray-400" />
                     )}
                   </div>
 
@@ -186,8 +192,10 @@ function AssessmentDetail({ item }: { item: AssessmentItem }) {
   ];
 
   return (
-    <div className="p-4 border-t border-gray-700 bg-gray-900 animate-fade-in">
-      <h3 className="text-lg font-semibold text-white mb-3">Full Submission Details</h3>
+    <div className="p-4 border-t border-gray-200 dark:border-gray-700 bg-gray-100 dark:bg-gray-900 animate-fade-in transition-colors duration-300">
+      <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-3">
+        Full Submission Details
+      </h3>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-3 text-sm">
         {detailFields.map(key => {
@@ -205,8 +213,10 @@ function AssessmentDetail({ item }: { item: AssessmentItem }) {
 
           return (
             <div key={key} className="flex flex-col">
-              <span className="font-medium text-gray-400">{formatLabel(key)}:</span>
-              <span className="text-white">
+              <span className="font-medium text-gray-600 dark:text-gray-400">
+                {formatLabel(key)}:
+              </span>
+              <span className="text-gray-900 dark:text-white">
                 {Array.isArray(value) ? value.join(", ") : String(value)}
               </span>
             </div>
@@ -217,8 +227,8 @@ function AssessmentDetail({ item }: { item: AssessmentItem }) {
       {/* Example of handling specific, complex data like Certifications */}
       {item.certifications && item.certifications.length > 0 && (
         <div className="mt-4">
-          <span className="font-medium text-gray-400">Certifications:</span>
-          <ul className="list-disc list-inside ml-2 text-white">
+          <span className="font-medium text-gray-600 dark:text-gray-400">Certifications:</span>
+          <ul className="list-disc list-inside ml-2 text-gray-900 dark:text-white">
             {item.certifications.map((cert: string, index: number) => (
               <li key={index}>{cert}</li>
             ))}
@@ -230,7 +240,7 @@ function AssessmentDetail({ item }: { item: AssessmentItem }) {
       {item.storage_path && (
         <a
           href={`/api/download?path=${item.storage_path}`} // Adjust this API route as needed
-          className="mt-4 inline-block text-green-400 hover:text-green-300 transition duration-150 text-sm font-semibold"
+          className="mt-4 inline-block text-green-600 dark:text-green-400 hover:text-green-500 dark:hover:text-green-300 transition duration-150 text-sm font-semibold"
           target="_blank"
           rel="noopener noreferrer"
         >

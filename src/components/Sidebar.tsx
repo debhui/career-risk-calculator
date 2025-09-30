@@ -40,7 +40,7 @@ export default function Sidebar({ isMobileOpen, onClose }: SidebarProps) {
   return (
     <>
       <aside
-        className={`fixed top-0 left-0 h-full w-64 bg-gray-800 p-4 shadow-lg z-50 transition-transform duration-300 ease-in-out ${mobileClasses} md:static md:translate-x-0`}
+        className={`fixed top-0 left-0 h-full w-64 bg-teal-500 dark:bg-gray-800 p-4 shadow-lg z-50 transition-transform duration-300 ease-in-out ${mobileClasses} md:static md:translate-x-0`}
       >
         <div className="flex justify-end md:hidden">
           <button onClick={onClose} className="text-white p-2">
@@ -57,8 +57,8 @@ export default function Sidebar({ isMobileOpen, onClose }: SidebarProps) {
                   href={`${item.url}`}
                   className={`flex flex-row items-center gap-2 space-y-2 py-2 px-4 rounded-lg transition-colors duration-200 ${
                     isActive
-                      ? "bg-gray-700 text-green-400 font-semibold"
-                      : "text-white hover:bg-gray-700 hover:text-gray-300"
+                      ? "bg-teal-700 dark:bg-gray-700 text-white font-semibold"
+                      : "text-gray-800 dark:text-white hover:bg-teal-300 hover:dark:bg-gray-700 hover:text-gray-600 hover:dark:text-gray-300"
                   }`}
                   onClick={onClose}
                 >

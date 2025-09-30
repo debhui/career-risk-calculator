@@ -2,7 +2,7 @@
 
 import React, { useEffect, useState } from "react";
 import { User as AuthUser } from "@supabase/supabase-js";
-import { User as UserIcon, CheckCircle, XCircle, Settings, FileText } from "lucide-react";
+import { User as UserIcon, CheckCircle, XCircle, Settings, FileText, Loader2 } from "lucide-react";
 import { createSupabaseClient } from "@/lib/supabase/browser";
 import Image from "next/image";
 
@@ -31,18 +31,22 @@ const DataField = ({
 
   const statusIcon =
     status === "ok" ? (
-      <CheckCircle className="w-5 h-5 text-green-400 mr-2" />
+      <CheckCircle className="w-5 h-5 text-green-500 dark:text-green-400 mr-2" />
     ) : status === "fail" ? (
       <XCircle className="w-5 h-5 text-red-400 mr-2" />
     ) : null;
 
   return (
-    <div className="flex items-start justify-between p-4 bg-gray-800 rounded-lg shadow-md transition duration-300 hover:bg-gray-700/70">
+    <div className="flex items-start justify-between p-4 bg-gray-200 dark:bg-gray-800 rounded-lg shadow-md transition duration-300 hover:bg-gray-300 hover:dark:bg-gray-700/70">
       <div className="flex items-center">
-        <Icon className="w-6 h-6 text-indigo-400 mr-3 shrink-0" />
+        <Icon className="w-6 h-6 text-teal-500  dar:text-indigo-400 mr-3 shrink-0" />
         <div>
-          <p className="text-sm font-semibold text-gray-400 uppercase tracking-wider">{title}</p>
-          <p className="mt-1 text-lg font-medium text-white break-all">{displayValue}</p>
+          <p className="text-sm font-semibold text-gray-600 dark:text-gray-400 uppercase tracking-wider">
+            {title}
+          </p>
+          <p className="mt-1 text-lg font-medium text-gray-800 dark:text-white break-all">
+            {displayValue}
+          </p>
         </div>
       </div>
       {statusIcon && <div className="flex items-center">{statusIcon}</div>}
@@ -122,28 +126,9 @@ export default function ProfilePage() {
   const renderContent = () => {
     if (isLoading) {
       return (
-        <div className="text-center p-8">
-          <svg
-            className="animate-spin h-8 w-8 text-indigo-400 mx-auto"
-            xmlns="http://www.w3.org/2000/svg"
-            fill="none"
-            viewBox="0 0 24 24"
-          >
-            <circle
-              className="opacity-25"
-              cx="12"
-              cy="12"
-              r="10"
-              stroke="currentColor"
-              strokeWidth="4"
-            ></circle>
-            <path
-              className="opacity-75"
-              fill="currentColor"
-              d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
-            ></path>
-          </svg>
-          <p className="mt-4 text-gray-400">Loading user profile...</p>
+        <div className="max-w-4xl mx-auto p-4 sm:p-8 pt-12 text-center text-gray-600 dark:text-gray-400">
+          <Loader2 className="w-8 h-8 mx-auto mb-4 animate-spin text-green-600 dark:text-green-400" />
+          <p>Loading profile...</p>
         </div>
       );
     }
@@ -170,14 +155,14 @@ export default function ProfilePage() {
     }
 
     return (
-      <div className="space-y-8">
+      <div className="space-y-8 min-h-[calc(100vh-274px)]">
         {/* Profile Header Card */}
-        <div className="flex items-center p-6 bg-gray-800 rounded-xl shadow-2xl border border-indigo-700/50">
+        <div className="flex items-center p-6 bg-gray-200 dark:bg-gray-800 rounded-xl shadow-2xl border border-teal-700/50 dark:border-indigo-700/50">
           {avatarUrl ? (
             <Image
               src={avatarUrl}
               alt={profileName}
-              className="w-16 h-16 rounded-full object-cover mr-6 border-2 border-indigo-500"
+              className="w-16 h-16 rounded-full object-cover mr-6 border-2 border-teal-500 dark:border-indigo-500"
               onError={e => {
                 (e.target as HTMLImageElement).onerror = null;
                 (e.target as HTMLImageElement).src =
@@ -187,19 +172,21 @@ export default function ProfilePage() {
               height={100}
             />
           ) : (
-            <div className="w-16 h-16 rounded-full bg-indigo-600 flex items-center justify-center text-white text-3xl font-bold mr-6 shrink-0">
+            <div className="w-16 h-16 rounded-full bg-teal-600 dark:bg-indigo-600 flex items-center justify-center text-gray-800 dark:text-white text-3xl font-bold mr-6 shrink-0">
               {profileName[0] || "U"}
             </div>
           )}
           <div>
-            <h1 className="text-3xl font-extrabold text-white truncate">{profileName}</h1>
-            <p className="text-indigo-400 mt-1">Career Risk Calculator User</p>
+            <h1 className="text-3xl font-extrabold text-gray-800 dark:text-white truncate">
+              {profileName}
+            </h1>
+            <p className="text-teal-500 dark:text-indigo-400 mt-1">Career Risk Calculator User</p>
           </div>
         </div>
 
         {/* Data Status Section */}
         <div className="space-y-4">
-          <h2 className="text-xl font-bold text-gray-300 border-b border-gray-700 pb-2">
+          <h2 className="text-xl font-bold text-gray-800 dark:text-gray-300 border-b border-gray-300 dark:border-gray-700 pb-2">
             Account & Data Status
           </h2>
 
@@ -222,18 +209,18 @@ export default function ProfilePage() {
 
         {/* Quick Actions */}
         <div className="space-y-4 pt-4">
-          <h2 className="text-xl font-bold text-gray-300 border-b border-gray-700 pb-2">
+          <h2 className="text-xl font-bold text-gray-800 dark:text-gray-300 border-b border-gray-300 dark:border-gray-700 pb-2">
             Quick Actions
           </h2>
           <a
             href="/assessment"
-            className="flex items-center justify-center w-full px-6 py-3 bg-indigo-600 text-white font-semibold rounded-lg shadow-lg hover:bg-indigo-700 transition duration-300"
+            className="flex items-center justify-center w-full px-6 py-3 bg-teal-600 dark:bg-indigo-600 text-white font-semibold rounded-lg shadow-lg hover:bg-teal-700 hover:dark:bg-indigo-700 transition duration-300"
           >
             Start Assessment
           </a>
           <a
             href="/settings"
-            className="flex items-center justify-center w-full px-6 py-3 border border-gray-600 text-gray-300 font-semibold rounded-lg shadow-lg hover:bg-gray-700 transition duration-300"
+            className="flex items-center justify-center w-full px-6 py-3 border border-gray-300 dark:border-gray-600 text-gray-600 dark:text-gray-300 font-semibold rounded-lg shadow-lg hover:bg-teal-300 hover:dark:bg-gray-700 transition duration-300"
           >
             <Settings className="w-5 h-5 mr-2" />
             Manage Settings & Data
