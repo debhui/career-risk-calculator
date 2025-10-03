@@ -8,6 +8,7 @@ import { ShieldHalf, ArrowRight, ArrowLeft, Zap, CheckCircle, Loader2 } from "lu
 import { AssessmentProfile } from "@/components/AssessmentProfile";
 import { CareerAssessment } from "@/components/CareerAssessment";
 import { ResumeUpload } from "@/components/ResumeUpload";
+// import { extractPdf } from "@/lib/actions/extractPdf";
 
 interface UserProfile {
   id: string;
@@ -80,6 +81,22 @@ export default function CombinedAssessmentPage() {
   const [hasFileUploadedHistorically, setHasFileUploadedHistorically] = useState(false);
   const [isResumeStepCompletedInFlow, setIsResumeStepCompletedInFlow] = useState(false);
   const [assessmentId, setAssessmentId] = useState<string>("");
+  // const [loading, setLoading] = useState(false);
+  // const [extractText, setExtractText] = useState("");
+
+  // async function handleExtract(filePath: string) {
+  //   // setLoading(true);
+  //   try {
+  //     const result = await extractPdf(filePath);
+  //     setExtractText(result.text);
+  //     console.log("extract", result.text);
+  //   } catch (err: any) {
+  //     console.error(err);
+  //     setExtractText("Error extracting PDF: " + err.message);
+  //   } finally {
+  //     // setLoading(false);
+  //   }
+  // }
 
   const onProfileSubmit = async (data: ProfileData) => {
     // Note: Supabase calls are mocked here as external file imports are not available.
@@ -112,9 +129,11 @@ export default function CombinedAssessmentPage() {
   };
 
   const handleResumeSuccess = (assementId: string) => {
+    // filePath: string
     setHasFileUploadedHistorically(true);
     setIsResumeStepCompletedInFlow(true);
     setAssessmentId(assementId);
+    // handleExtract(filePath);
     setStep(3); // Advance to the Assessment step
   };
 
@@ -161,7 +180,7 @@ export default function CombinedAssessmentPage() {
       status: "COMPLETED",
       submitted_at: new Date().toISOString(),
     };
-    console.log(dataToSave);
+
     // In a real environment, you would use the imported 'supabase' object.
     const { error } = await supabase.from("assessments").update(dataToSave).eq("id", assessmentId);
 
@@ -232,7 +251,7 @@ export default function CombinedAssessmentPage() {
 
         if (profileData) {
           setProfile(profileData as UserProfile);
-          console.log(profileData);
+
           if (profileData.full_name) {
             setHasFileUploadedHistorically(true);
           }

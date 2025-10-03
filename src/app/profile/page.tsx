@@ -113,9 +113,6 @@ export default function ProfilePage() {
     fetchUserData();
   }, [supabase]);
 
-  useEffect(() => {
-    console.log(profile);
-  }, [profile]);
   const profileName =
     profile?.full_name ||
     user?.user_metadata?.full_name ||

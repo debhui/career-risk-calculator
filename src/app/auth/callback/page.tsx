@@ -25,8 +25,9 @@ async function fetchProfile(supabase: any, userId: string, maxRetries = 5) {
 export default function CallbackPage() {
   const router = useRouter();
   const supabase = createSupabaseClient();
-
+  console.log("callback");
   useEffect(() => {
+    console.log("callback");
     const {
       data: { subscription },
     } = supabase.auth.onAuthStateChange(async (event, session) => {
@@ -44,7 +45,7 @@ export default function CallbackPage() {
           } else if (!profile.onboarding_completed) {
             router.replace("/onboarding"); // step 2 if needed
           } else {
-            router.replace("/assessment");
+            router.replace("/");
           }
         } catch (err) {
           console.error("Error fetching profile:", err);

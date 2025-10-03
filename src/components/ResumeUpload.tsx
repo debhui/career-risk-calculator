@@ -8,7 +8,7 @@ const RESUME_BUCKET = "resumes"; // Define the bucket name
 const ASSESSMENT_TABLE = "assessments";
 // Define props to include the callback for success
 interface ResumeUploadProps {
-  onUploadSuccess: (assessmentId: string) => void;
+  onUploadSuccess: (assessmentId: string, filePath: string) => void;
   onContinue: () => void;
   // New prop: indicates if the Resume step was successfully completed in this flow session (Back button logic)
   isResumeStepCompletedInFlow: boolean;
@@ -157,7 +157,7 @@ export const ResumeUpload: React.FC<ResumeUploadProps> = ({
       } else if (data && data.length > 0) {
         const newAssessmentId = data[0].id;
         setUploadStatus("success");
-        onUploadSuccess(newAssessmentId);
+        onUploadSuccess(newAssessmentId, filePath);
         setFile(null);
       } else {
         // Should not happen if select('id') is successful

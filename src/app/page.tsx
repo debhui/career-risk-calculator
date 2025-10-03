@@ -14,7 +14,7 @@ import {
 import Link from "next/link";
 import Login from "@/components/Login";
 import { createSupabaseClient } from "@/lib/supabase/browser";
-
+import { useRouter } from "next/navigation";
 // --- Quick Link Card Data ---
 const quickLinks = [
   {
@@ -89,7 +89,7 @@ export default function CareerRiskCalculatorHomePage() {
   const [isAuthenticated, setIsAuthenticated] = useState<boolean | null>(null);
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const supabase = createSupabaseClient();
-
+  const router = useRouter();
   // Effect to apply theme class and persist to localStorage whenever theme state changes
 
   useEffect(() => {
@@ -103,6 +103,27 @@ export default function CareerRiskCalculatorHomePage() {
         await new Promise(resolve => setTimeout(resolve, 200));
 
         if (user) {
+          const { data: profile } = await supabase
+            .from("profiles")
+            .select("consent_accepted, onboarding_completed")
+            .eq("id", user.id)
+            .maybeSingle();
+
+          if (!profile || !profile.consent_accepted || !profile.onboarding_completed) {
+            // Found a user, but onboarding is incomplete or profile is missing
+            router.replace("/onboarding");
+            return; // Stop execution to prevent setting isAuthenticated(true) prematurely
+          }
+          // if (error) {
+          //   console.error("Error fetching profile on home page:", error);
+          //   setIsAuthenticated(true); // Treat as logged in, but show status error
+          // } else if (!profile || !profile.consent_accepted || !profile.onboarding_completed) {
+          //   // If the profile is missing or onboarding is incomplete, redirect.
+          //   // This handles users who navigate back to '/' but haven't finished onboarding.
+          //   router.replace("/onboarding"); // <--- This is the key line
+          //   return; // Stop rendering the home page content
+          // }
+
           setIsAuthenticated(true);
         } else {
           setIsAuthenticated(false);
@@ -115,14 +136,14 @@ export default function CareerRiskCalculatorHomePage() {
       }
     };
     fetchUser();
-  }, [supabase]);
+  }, [supabase, router]);
 
   // --- 1. Full-Screen Loading State ---
   if (isLoading || isAuthenticated === null) {
     return (
       <div className="flex flex-col items-center justify-center h-screen w-full bg-white dark:bg-gray-900 transition-colors duration-300">
         <Loader2 className="w-8 h-8 mx-auto mb-4 animate-spin text-green-600 dark:text-green-400" />
-        <p className="text-gray-700 dark:text-gray-300">Verifying session...</p>
+        <p className="text-gray-700 dark:text-gray-300">Loading home page...</p>
       </div>
     );
   }

@@ -1,8 +1,16 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useMemo, useCallback } from "react";
 import { createSupabaseClient } from "@/lib/supabase/browser";
-import { Clock, Loader2, ListX, ChevronDown, ChevronUp } from "lucide-react";
+import {
+  Clock,
+  Loader2,
+  ListX,
+  ChevronDown,
+  ChevronUp,
+  ChevronLeft,
+  ChevronRight,
+} from "lucide-react";
 import { useSupabaseDownloader } from "@/hooks/useSupabaseDownloader";
 
 // 1. Define the full structure of your assessment data
@@ -28,17 +36,21 @@ export default function HistoryPage() {
   const [error, setError] = useState<string | null>(null);
   const [expandedId, setExpandedId] = useState<string | null>(null);
   const { isLoadingDownload, errorDownload, downloadFile } = useSupabaseDownloader();
+  const [currentPage, setCurrentPage] = useState(1);
+  const [totalCount, setTotalCount] = useState(0);
+  const pageSize = 10;
 
-  /**
-   * Toggles the expansion state of a history item.
-   */
-  const handleToggleExpand = (id: string) => {
-    setExpandedId(id === expandedId ? null : id); // Toggle or set
-  };
+  const totalPages = useMemo(() => {
+    return Math.ceil(totalCount / pageSize);
+  }, [totalCount, pageSize]);
 
-  /**
-   * Fetches the authenticated user and their assessment list.
-   */
+  const handleToggleExpand = useCallback(
+    (id: string) => {
+      setExpandedId(id === expandedId ? null : id); // Toggle or set
+    },
+    [expandedId]
+  );
+
   useEffect(() => {
     const fetchAssessments = async () => {
       setIsLoading(true);
@@ -56,26 +68,43 @@ export default function HistoryPage() {
 
       setIsAuthenticated(true);
 
-      // Fetch ALL columns with select("*") as requested
-      const { data, error: fetchError } = await supabase
-        .from("assessments")
-        .select("*")
-        .eq("user_id", user.id)
-        .order("submitted_at", { ascending: false })
-        .limit(50);
+      const from = (currentPage - 1) * pageSize;
+      const to = from + pageSize - 1;
 
-      if (fetchError) {
-        console.error("Error fetching assessments:", fetchError);
-        setError("Failed to load assessments. Please try again.");
-      } else if (data) {
-        setAssessmentList(data as AssessmentItem[]);
+      try {
+        const {
+          data,
+          count,
+          error: fetchError,
+        } = await supabase
+          .from("assessments")
+          .select("*", { count: "exact" })
+          .eq("user_id", user.id)
+          .neq("status", "DRAFT")
+          .order("submitted_at", { ascending: false })
+          .range(from, to);
+
+        if (fetchError) {
+          console.error("Error fetching assessments:", fetchError);
+          setError("Failed to load assessments. Please try again.");
+          setAssessmentList([]);
+          setTotalCount(0);
+        } else if (data) {
+          setAssessmentList(data as AssessmentItem[]);
+          setTotalCount(count || 0);
+        }
+      } catch (e) {
+        console.error("Unexpected error during fetch:", e);
+        setError("An unexpected error occurred.");
+        setAssessmentList([]);
+        setTotalCount(0);
+      } finally {
+        setIsLoading(false);
       }
-
-      setIsLoading(false);
     };
 
     fetchAssessments();
-  }, [supabase]);
+  }, [supabase, currentPage]);
 
   // --- Conditional Rendering for Loading, Error, and Authentication ---
 
@@ -83,7 +112,7 @@ export default function HistoryPage() {
     return (
       <div className="max-w-4xl mx-auto p-4 sm:p-8 pt-12 text-center text-gray-600 dark:text-gray-400">
         <Loader2 className="w-8 h-8 mx-auto mb-4 animate-spin text-green-600 dark:text-green-400" />
-        <p>Loading history...</p>
+        <p>Loading history for page {currentPage}...</p>
       </div>
     );
   }
@@ -104,6 +133,30 @@ export default function HistoryPage() {
     );
   }
 
+  const PaginationControls = () => (
+    <div className="flex justify-between items-center mt-8 p-4 bg-gray-100 dark:bg-gray-800 rounded-lg shadow-inner">
+      <button
+        onClick={() => setCurrentPage(prev => Math.max(1, prev - 1))}
+        disabled={currentPage === 1}
+        className="flex items-center px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg hover:bg-gray-200 dark:hover:bg-gray-600 disabled:opacity-50 transition-colors"
+      >
+        <ChevronLeft className="w-4 h-4 mr-2" />
+        Previous
+      </button>
+      <span className="text-gray-700 dark:text-gray-300 text-sm font-semibold">
+        Page {currentPage} of {totalPages} (Total: {totalCount})
+      </span>
+      <button
+        onClick={() => setCurrentPage(prev => Math.min(totalPages, prev + 1))}
+        disabled={currentPage >= totalPages || totalPages === 0}
+        className="flex items-center px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg hover:bg-gray-200 dark:hover:bg-gray-600 disabled:opacity-50 transition-colors"
+      >
+        Next
+        <ChevronRight className="w-4 h-4 ml-2" />
+      </button>
+    </div>
+  );
+
   // --- Main Render ---
   return (
     <div className="bg-white dark:bg-gray-900 text-gray-900 dark:text-white min-h-[calc(100vh-178px)] transition-colors duration-300">
@@ -114,61 +167,70 @@ export default function HistoryPage() {
             Assessment History
           </h1>
         </div>
-
-        {assessmentList.length === 0 ? (
+        {assessmentList.length === 0 && totalCount > 0 ? (
           <div className="text-center py-10 border-2 border-dashed border-gray-300 dark:border-gray-700 rounded-lg">
             <ListX className="w-10 h-10 mx-auto text-gray-400 dark:text-gray-500 mb-3" />
             <p className="text-lg font-medium text-gray-600 dark:text-gray-400">
-              No assessments found.
+              No results found on this page. Try going back.
+            </p>
+          </div>
+        ) : assessmentList.length === 0 && totalCount === 0 ? (
+          <div className="text-center py-10 border-2 border-dashed border-gray-300 dark:border-gray-700 rounded-lg">
+            <ListX className="w-10 h-10 mx-auto text-gray-400 dark:text-gray-500 mb-3" />
+            <p className="text-lg font-medium text-gray-600 dark:text-gray-400">
+              No submitted assessments found.
             </p>
           </div>
         ) : (
-          <ul className="space-y-4">
-            {assessmentList.map(item => {
-              const isExpanded = item.id === expandedId;
-              return (
-                <li
-                  key={item.id}
-                  className="bg-gray-200 dark:bg-gray-800 rounded-lg shadow-xl overflow-hidden border border-gray-200 dark:border-gray-800 transition-shadow duration-300"
-                >
-                  {/* Summary Header - Always visible */}
-                  <div
-                    className="p-4 flex justify-between items-center cursor-pointer hover:bg-gray-200 dark:hover:bg-gray-700 transition duration-150"
-                    onClick={() => handleToggleExpand(item.id)}
+          <>
+            <ul className="space-y-4">
+              {assessmentList.map(item => {
+                const isExpanded = item.id === expandedId;
+                return (
+                  <li
+                    key={item.id}
+                    className="bg-gray-200 dark:bg-gray-800 rounded-lg shadow-xl overflow-hidden border border-gray-200 dark:border-gray-800 transition-shadow duration-300"
                   >
-                    <div>
-                      <p className="text-xl font-bold text-teal-500 dark:text-green-400">
-                        {item.job_role}
-                      </p>
-                      <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">
-                        **{item.industry}** &bull; {item.experience}
-                      </p>
-                      <p className="text-xs text-gray-500 dark:text-gray-500 mt-1">
-                        Submitted: {new Date(item.submitted_at).toLocaleDateString()}
-                      </p>
+                    {/* Summary Header - Always visible */}
+                    <div
+                      className="p-4 flex justify-between items-center cursor-pointer hover:bg-gray-200 dark:hover:bg-gray-700 transition duration-150"
+                      onClick={() => handleToggleExpand(item.id)}
+                    >
+                      <div>
+                        <p className="text-xl font-bold text-teal-500 dark:text-green-400">
+                          {item.job_role}
+                        </p>
+                        <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">
+                          **{item.industry}** &bull; {item.experience}
+                        </p>
+                        <p className="text-xs text-gray-500 dark:text-gray-500 mt-1">
+                          Submitted: {new Date(item.submitted_at).toLocaleDateString()}
+                        </p>
+                      </div>
+                      {isExpanded ? (
+                        <ChevronUp className="w-5 h-5 text-green-600 dark:text-green-400" />
+                      ) : (
+                        <ChevronDown className="w-5 h-5 text-gray-500 dark:text-gray-400" />
+                      )}
                     </div>
-                    {isExpanded ? (
-                      <ChevronUp className="w-5 h-5 text-green-600 dark:text-green-400" />
-                    ) : (
-                      <ChevronDown className="w-5 h-5 text-gray-500 dark:text-gray-400" />
-                    )}
-                  </div>
 
-                  {/* Detailed Body - Shown only when expanded */}
-                  {isExpanded && (
-                    <>
-                      <AssessmentDetail
-                        item={item}
-                        handleDownload={downloadFile}
-                        isLoading={isLoadingDownload}
-                      />
-                      {errorDownload && <p className="text-red-500 text-sm">{error}</p>}
-                    </>
-                  )}
-                </li>
-              );
-            })}
-          </ul>
+                    {/* Detailed Body - Shown only when expanded */}
+                    {isExpanded && (
+                      <>
+                        <AssessmentDetail
+                          item={item}
+                          handleDownload={downloadFile}
+                          isLoading={isLoadingDownload}
+                        />
+                        {errorDownload && <p className="text-red-500 text-sm">{error}</p>}
+                      </>
+                    )}
+                  </li>
+                );
+              })}
+            </ul>
+            {totalPages > 1 && <PaginationControls />}
+          </>
         )}
       </div>
     </div>

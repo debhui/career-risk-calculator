@@ -15,6 +15,8 @@ export default function Login() {
         redirectTo: `${window.location.origin}/auth/callback`,
       },
     });
+    console.log("auth callback");
+    debugger;
   };
 
   return (
