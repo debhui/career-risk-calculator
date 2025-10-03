@@ -34,7 +34,7 @@ export default function RootLayout({
       } = await supabase.auth.getUser();
 
       if (user) {
-        // setIsAuthenticated(true);
+        setIsAuthenticated(true);
         setUserEmail(user?.email || "");
         setAvatarUrl(user?.user_metadata?.avatar_url);
 
