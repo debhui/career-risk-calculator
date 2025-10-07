@@ -301,7 +301,7 @@ export function CareerAssessment({
         </div> */}
         {submitStatus === "success" && (
           <p className="text-center text-green-400 font-medium p-3 bg-green-900/50 rounded-lg">
-            Assessment submitted! Redirecting to results...
+            Assessment submitted! Redirecting to view results...
           </p>
         )}
         {submitStatus === "error" && (

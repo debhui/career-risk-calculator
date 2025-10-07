@@ -1,3 +1,5 @@
+// app/layout.tsx
+
 "use client";
 
 import { useEffect, useState } from "react";
@@ -5,9 +7,14 @@ import "./globals.css";
 import Footer from "@/components/Footer";
 import Navbar from "@/components/Navbar";
 import Sidebar from "@/components/Sidebar";
-import Providers from "@/components/Providers";
+import StoreProvider from "@/lib/StoreProvider";
+import ThemeProviders from "@/components/ThemeProviders";
 import { usePathname, useRouter } from "next/navigation";
 import { createSupabaseClient } from "@/lib/supabase/browser";
+import Script from "next/script";
+// import { Session } from "@supabase/supabase-js";
+// import { useAppDispatch } from "@/hooks/appDispatch";
+// import { setSession } from "@/store/authSlice";
 
 export default function RootLayout({
   children,
@@ -20,6 +27,7 @@ export default function RootLayout({
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [isProfileComplete, setIsProfileComplete] = useState<boolean>(false);
   // const [isAuthCheckComplete, setIsAuthCheckComplete] = useState<boolean>(false);
+  // const dispatch = useAppDispatch();
 
   const supabase = createSupabaseClient();
   const router = useRouter();
@@ -33,6 +41,15 @@ export default function RootLayout({
         data: { user },
       } = await supabase.auth.getUser();
 
+      // const {
+      //   data: { session },
+      // } = await supabase.auth.getSession();
+      // console.log("session", session);
+      // if (session) {
+      //   dispatch(setSession);
+      // } else {
+      //   dispatch(null);
+      // }
       if (user) {
         setIsAuthenticated(true);
         setUserEmail(user?.email || "");
@@ -87,24 +104,27 @@ export default function RootLayout({
     // The 'dark' class will be added to the html element by the Providers/ThemeProvider
     <html lang="en" suppressHydrationWarning className="h-full">
       <body className="flex flex-col h-full bg-white text-gray-900 dark:bg-gray-900 dark:text-white transition-colors duration-300">
-        <Providers>
-          <Navbar
-            isAuthenticated={isAuthenticated}
-            userEmail={userEmail}
-            avatarUrl={avatarUrl}
-            onMenuClick={() => setIsSidebarOpen(true)}
-          />
-          {/* Main Content Wrapper - Needs proper light/dark background */}
-          <div className="flex flex-1  bg-white dark:bg-gray-900 overflow-hidden">
-            {isAuthenticated && isProfileComplete && (
-              <Sidebar isMobileOpen={isSidebarOpen} onClose={() => setIsSidebarOpen(false)} />
-            )}
-            <main className="flex-1 h-full overflow-y-auto">
-              <div className="p-0">{children}</div>
-              <Footer />
-            </main>
-          </div>
-        </Providers>
+        <StoreProvider>
+          <ThemeProviders>
+            <Navbar
+              isAuthenticated={isAuthenticated}
+              userEmail={userEmail}
+              avatarUrl={avatarUrl}
+              onMenuClick={() => setIsSidebarOpen(true)}
+            />
+            {/* Main Content Wrapper - Needs proper light/dark background */}
+            <div className="flex flex-1  bg-white dark:bg-gray-900 overflow-hidden">
+              {isAuthenticated && isProfileComplete && (
+                <Sidebar isMobileOpen={isSidebarOpen} onClose={() => setIsSidebarOpen(false)} />
+              )}
+              <main className="flex-1 h-full overflow-y-auto">
+                <div className="p-0">{children}</div>
+                <Footer />
+              </main>
+            </div>
+          </ThemeProviders>
+        </StoreProvider>
+        <Script src="https://checkout.razorpay.com/v1/checkout.js" strategy="afterInteractive" />
       </body>
     </html>
   );

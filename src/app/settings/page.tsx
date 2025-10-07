@@ -119,7 +119,7 @@ export default function SettingsPage() {
   // Conditional Rendering for initial loading state
   if (isLoading) {
     return (
-      <div className="bg-white dark:bg-gray-900 text-gray-900 dark:text-white min-h-screen flex items-center justify-center transition-colors duration-300">
+      <div className="bg-white dark:bg-gray-900 text-gray-900 dark:text-white min-h-[calc(100vh-178px)] flex items-center justify-center transition-colors duration-300">
         <div className="flex items-center space-x-3 text-lg font-medium text-gray-700 dark:text-gray-300">
           <Loader2 className="w-8 h-8 mx-auto mb-4 animate-spin text-green-600 dark:text-green-400" />
           <p>Loading settings...</p>

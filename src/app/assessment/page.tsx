@@ -81,6 +81,7 @@ export default function CombinedAssessmentPage() {
   const [hasFileUploadedHistorically, setHasFileUploadedHistorically] = useState(false);
   const [isResumeStepCompletedInFlow, setIsResumeStepCompletedInFlow] = useState(false);
   const [assessmentId, setAssessmentId] = useState<string>("");
+
   // const [loading, setLoading] = useState(false);
   // const [extractText, setExtractText] = useState("");
 
@@ -97,6 +98,8 @@ export default function CombinedAssessmentPage() {
   //     // setLoading(false);
   //   }
   // }
+
+  const REPORT_PRICE_PAISE = 49900;
 
   const onProfileSubmit = async (data: ProfileData) => {
     // Note: Supabase calls are mocked here as external file imports are not available.
@@ -191,7 +194,24 @@ export default function CombinedAssessmentPage() {
       console.error("Save Error:", error);
     } else {
       setSubmitStatus("success");
-      setStep(4);
+
+      // fake report generation
+      const { data: reportData, error: reportError } = await supabase
+        .from("reports")
+        .insert({
+          user_id: user.id,
+          price: REPORT_PRICE_PAISE / 100, // Price is real
+          status: "pending_payment", // Status is temporary/fake
+          assessment_id: assessmentId,
+          // report_data remains NULL here
+        })
+        .select("id")
+        .single();
+      if (reportData) {
+        setStep(4);
+      } else {
+        console.error(reportError);
+      }
     }
   };
 
@@ -276,15 +296,21 @@ export default function CombinedAssessmentPage() {
     fetchUserData();
   }, [supabase]);
 
+  if (isLoading) {
+    return (
+      <div className="bg-white dark:bg-gray-900 text-gray-900 dark:text-white min-h-[calc(100vh-178px)] flex items-center justify-center transition-colors duration-300">
+        <div className="flex items-center space-x-3 text-lg font-medium text-gray-700 dark:text-gray-300">
+          <Loader2 className="w-8 h-8 mx-auto mb-4 animate-spin text-green-600 dark:text-green-400" />
+          <p>Loading assessement page...</p>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="flex flex-col items-center p-4 sm:p-6 font-inter min-h-[calc(100vh-178px)]">
       {/* --- Global Loading and Error State --- */}
-      {isLoading ? (
-        <div className="flex flex-col items-center justify-center w-full h-full min-h-[50vh] text-center">
-          <Loader2 className="w-8 h-8 mx-auto mb-4 animate-spin text-green-600 dark:text-green-400" />
-          <p>Loading assessment data...</p>
-        </div>
-      ) : error ? (
+      {error ? (
         <div className="flex flex-col items-center justify-center min-h-[50vh] text-center w-full max-w-2xl bg-red-900/20 p-8 rounded-xl shadow-xl border border-red-700">
           <p className="text-lg font-semibold text-red-400 mb-2">Error Loading Data</p>
           <p className="text-sm text-red-300">{error}</p>
@@ -444,7 +470,7 @@ export default function CombinedAssessmentPage() {
               {/* Grouped buttons for navigation */}
               <div className="flex space-x-4 mt-6">
                 <a
-                  href="/results"
+                  href="/history"
                   className="inline-flex items-center px-6 py-3 text-white bg-teal-600 dark:bg-indigo-600 rounded-xl hover:bg-teal-700 hover:dark:bg-indigo-700 transition font-semibold"
                 >
                   View My Results

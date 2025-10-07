@@ -1,3 +1,4 @@
+// app/page.tsx
 "use client";
 
 import { useEffect, useState } from "react";
@@ -141,9 +142,11 @@ export default function CareerRiskCalculatorHomePage() {
   // --- 1. Full-Screen Loading State ---
   if (isLoading || isAuthenticated === null) {
     return (
-      <div className="flex flex-col items-center justify-center h-screen w-full bg-white dark:bg-gray-900 transition-colors duration-300">
-        <Loader2 className="w-8 h-8 mx-auto mb-4 animate-spin text-green-600 dark:text-green-400" />
-        <p className="text-gray-700 dark:text-gray-300">Loading home page...</p>
+      <div className="bg-white dark:bg-gray-900 text-gray-900 dark:text-white min-h-[calc(100vh-178px)] flex items-center justify-center transition-colors duration-300">
+        <div className="flex items-center space-x-3 text-lg font-medium text-gray-700 dark:text-gray-300">
+          <Loader2 className="w-8 h-8 mx-auto mb-4 animate-spin text-green-600 dark:text-green-400" />
+          <p>Loading home page...</p>
+        </div>
       </div>
     );
   }
