@@ -122,7 +122,7 @@ export default function HistoryPage() {
             report_status:
               item.reports && item.reports.length > 0
                 ? (item.reports[0].status ?? "UNPAID").toUpperCase()
-                : "UNPAID",
+                : "NA",
           }));
 
           setAssessmentList(mappedData);
@@ -156,7 +156,7 @@ export default function HistoryPage() {
 
   if (error) {
     return (
-      <div className="max-w-4xl mx-auto p-4 sm:p-8 pt-12 text-center text-red-600 dark:text-red-400">
+      <div className="max-w-6xl mx-auto p-4 sm:p-8 pt-12 text-center text-red-600 dark:text-red-400">
         <p>Error: {error}</p>
       </div>
     );
@@ -189,13 +189,19 @@ export default function HistoryPage() {
   // --- Main Render ---
   return (
     <div className="bg-white dark:bg-gray-900 text-gray-900 dark:text-white min-h-[calc(100vh-178px)] transition-colors duration-300">
-      <div className="max-w-4xl mx-auto p-4 sm:p-8 pt-12">
-        <div className="flex justify-between items-center mb-8 border-b border-gray-200 dark:border-gray-700 pb-3">
+      <div className="max-w-6xl mx-auto p-4 sm:p-8 pt-12">
+        {/* <div className="flex justify-between items-center mb-8 border-b border-gray-200 dark:border-gray-700 pb-3">
           <h1 className="text-3xl font-extrabold flex items-center">
             <Clock className="w-6 h-6 mr-3 text-green-600 dark:text-green-400" />
             Assessment History
           </h1>
-        </div>
+        </div> */}
+        <header className="mb-8 border-b border-gray-300 dark:border-gray-700 pb-3 flex justify-between items-center">
+          <h1 className="text-3xl font-extrabold text-gray-800 dark:text-white flex items-center">
+            <Clock className="w-8 h-8 mr-3 text-teal-600 dark:text-indigo-400" />
+            Assessment History
+          </h1>
+        </header>
         {assessmentList.length === 0 && totalCount > 0 ? (
           <div className="text-center py-10 border-2 border-dashed border-gray-300 dark:border-gray-700 rounded-lg">
             <ListX className="w-10 h-10 mx-auto text-gray-400 dark:text-gray-500 mb-3" />
@@ -226,7 +232,7 @@ export default function HistoryPage() {
                       onClick={() => handleToggleExpand(item.id)}
                     >
                       <div>
-                        <p className="text-xl font-bold text-teal-500 dark:text-green-400">
+                        <p className="text-xl font-bold text-teal-500 dark:text-indigo-400">
                           {item.job_role}
                         </p>
                         <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">
@@ -392,7 +398,7 @@ function AssessmentDetail({
   }, [user, router, onReportStatusChange, item.id]);
 
   // --- Logic to determine which button to show ---
-  const reportStatus = item.report_status; // e.g., "UNPAID", "PENDING", "PAID"
+  const reportStatus = item.report_status; // e.g., "UNPAID", "PENDING", "PAID", "NA"
   const reportExists = item.reports && item.reports.length > 0; // ensure report exists
   const reportId = reportExists ? item.reports[0].id : null;
 
@@ -419,13 +425,21 @@ function AssessmentDetail({
   } else if (reportStatus === "UNPAID" || reportStatus === "PENDING_PAYMENT") {
     // 💰 Unpaid or pending → show pay button
     buttonProps = {
-      label: isProcessingPayment ? "Processing Payment..." : "Pay for Report",
+      label: isProcessingPayment ? "Processing Payment..." : "Pay for Report (499/-)",
       action: handleReport,
       color:
         "bg-green-600 dark:bg-green-600 shadow-green-600/30 dark:shadow-green-600/30 hover:bg-green-700 hover:dark:bg-green-700",
       isDisabled: isProcessingPayment,
     };
   } else if (reportStatus === "PENDING") {
+    // ⏳ Payment complete but report still generating
+    buttonProps = {
+      label: "Report Generating...",
+      color:
+        "bg-amber-500 dark:bg-amber-500 shadow-amber-500/30 dark:shadow-amber-500/30 opacity-80 cursor-default",
+      isDisabled: true,
+    };
+  } else if (reportStatus === "NA") {
     // ⏳ Payment complete but report still generating
     buttonProps = {
       label: "Report Generating...",

@@ -1,45 +1,100 @@
-// api/razorpay/webhooks/route.ts
+// src/app/api/razorpay/webhook/route.ts
 import { NextResponse } from "next/server";
 import crypto from "crypto";
 import { supabaseAdmin } from "@/lib/supabase/service";
 
-// Get the Webhook Secret from environment variables
-const WEBHOOK_SECRET = process.env.RAZORPAY_WEBHOOK_SECRET;
+const WEBHOOK_SECRET = process.env.RAZORPAY_WEBHOOK_SECRET!;
 
 export async function POST(req: Request) {
-  // 1. Get Raw Body and Signature
-  const body = await req.text(); // Get the raw body string
-  const signature = req.headers.get("x-razorpay-signature");
+  let logId: string | null = null;
+  let transactionId: string | null = null;
+  let event = "unknown";
+  let statusCode = 500;
+  let processed = false;
+  let errorMessage: string | null = null;
 
-  if (!signature || !WEBHOOK_SECRET) {
-    return new NextResponse("Webhook configuration error", { status: 400 });
-  }
+  try {
+    const signature = req.headers.get("x-razorpay-signature");
+    const body = await req.text();
 
-  // 2. 🛑 Verification: Securely check the signature
-  const shasum = crypto.createHmac("sha256", WEBHOOK_SECRET);
-  shasum.update(body);
-  const digest = shasum.digest("hex");
+    if (!signature || !WEBHOOK_SECRET) {
+      return new NextResponse("Missing webhook configuration", { status: 400 });
+    }
 
-  if (digest !== signature) {
-    return new NextResponse("Invalid signature", { status: 403 });
-  }
+    // Try parsing early for logging
+    let payload: any;
+    try {
+      payload = JSON.parse(body);
+      event = payload?.event || "unverified";
+    } catch {
+      payload = { raw: body };
+    }
 
-  // 3. Parse and Process Payload
-  const payload = JSON.parse(body);
-  const event = payload.event;
-  const payment = payload.payload.payment.entity;
+    // 🪵 Step 1: Pre-log the webhook
+    const { data: inserted, error: insertError } = await supabaseAdmin
+      .from("webhook_logs")
+      .insert({
+        event,
+        payload,
+        signature,
+        processed: false,
+      })
+      .select("id")
+      .single();
 
-  console.log(`Processing Razorpay event: ${event}`);
+    if (insertError) console.error("⚠️ Failed to insert webhook log:", insertError);
+    else logId = inserted?.id;
 
-  // We only care about successful payments
-  if (event === "payment.captured" || payment.status === "captured") {
+    // ✅ Step 2: Verify Razorpay signature
+    const expected = crypto.createHmac("sha256", WEBHOOK_SECRET).update(body).digest("hex");
+    if (expected !== signature) {
+      errorMessage = "Invalid Razorpay signature";
+      statusCode = 403;
+      console.error("❌ Invalid signature");
+
+      if (logId)
+        await supabaseAdmin
+          .from("webhook_logs")
+          .update({
+            status_code: statusCode,
+            error_message: errorMessage,
+          })
+          .eq("id", logId);
+
+      return new NextResponse(errorMessage, { status: statusCode });
+    }
+
+    // Step 3: Extract payment details
+    const payment = payload.payload?.payment?.entity;
+    if (!payment) {
+      statusCode = 200;
+      errorMessage = "No payment entity found";
+      await updateLog(logId, statusCode, processed, errorMessage);
+      return new NextResponse("No payment entity", { status: statusCode });
+    }
+
     const orderId = payment.order_id;
     const paymentId = payment.id;
-    const reportId = payment.notes.report_id; // Retrieve reportId from the order notes
+    const reportId = payment.notes?.report_id;
 
-    // --- Step 5: Database Update & Fulfillment ---
-    try {
-      // A. Update the transaction status to 'success'
+    if (!reportId || !orderId) {
+      statusCode = 200;
+      errorMessage = "Missing report_id or order_id";
+      await updateLog(logId, statusCode, processed, errorMessage);
+      return new NextResponse("Missing data", { status: statusCode });
+    }
+
+    // Step 4: Find related transaction
+    const { data: tx } = await supabaseAdmin
+      .from("transactions")
+      .select("id")
+      .eq("razorpay_order_id", orderId)
+      .single();
+
+    if (tx) transactionId = tx.id;
+
+    // Step 5: Update DB for captured payments
+    if (event === "payment.captured" || payment.status === "captured") {
       const { error: txError } = await supabaseAdmin
         .from("transactions")
         .update({
@@ -48,28 +103,49 @@ export async function POST(req: Request) {
           updated_at: new Date().toISOString(),
         })
         .eq("razorpay_order_id", orderId);
-
       if (txError) throw txError;
 
-      // B. Update the report status (The ultimate sign-off)
-      const { error: reportUpdateError } = await supabaseAdmin
+      const { error: reportError } = await supabaseAdmin
         .from("reports")
         .update({
           status: "paid_ready_to_view",
+          paid_at: new Date().toISOString(),
         })
         .eq("id", reportId);
+      if (reportError) throw reportError;
 
-      if (reportUpdateError) throw reportUpdateError;
-
-      // Success response (status 200 is mandatory for Razorpay)
-      return new NextResponse("OK", { status: 200 });
-    } catch (dbError) {
-      console.error("Database update failed for order:", orderId, dbError);
-      // Return 500 so Razorpay retries the webhook
-      return new NextResponse("Database error", { status: 500 });
+      processed = true;
+      statusCode = 200;
+      console.log(`✅ Payment captured for report ${reportId}`);
     }
-  }
 
-  // Handle other events like payment.failed or refund events (optional)
-  return new NextResponse("Event received and ignored", { status: 200 });
+    // Step 6: Update webhook_logs entry
+    await updateLog(logId, statusCode, processed, errorMessage, transactionId);
+    return new NextResponse("OK", { status: 200 });
+  } catch (err: any) {
+    console.error("❌ Webhook error:", err);
+    errorMessage = err.message || "Internal error";
+
+    await updateLog(logId, 500, false, errorMessage, transactionId);
+    return new NextResponse("Internal error", { status: 500 });
+  }
+}
+
+async function updateLog(
+  logId: string | null,
+  statusCode: number,
+  processed: boolean,
+  errorMessage: string | null,
+  transactionId: string | null = null
+) {
+  if (!logId) return;
+  await supabaseAdmin
+    .from("webhook_logs")
+    .update({
+      status_code: statusCode,
+      processed,
+      error_message: errorMessage,
+      transaction_id: transactionId,
+    })
+    .eq("id", logId);
 }

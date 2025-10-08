@@ -52,7 +52,7 @@ export default function PurchaseReportPage() {
       {/* --- END HEADER --- */}
 
       {/* --- CONTENT AREA --- */}
-      <main className="max-w-4xl mx-auto p-4 sm:p-8 pt-12">
+      <main className="max-w-6xl mx-auto p-4 sm:p-8 pt-12">
         <div className="bg-white dark:bg-gray-850 shadow-2xl rounded-xl p-8 sm:p-12 text-center border border-gray-200 dark:border-gray-700 transition-colors duration-500">
           {/* Main Title/Heading */}
           <h2 className="text-3xl sm:text-4xl font-extrabold text-gray-900 dark:text-white mb-4">

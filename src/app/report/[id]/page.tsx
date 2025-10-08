@@ -25,7 +25,7 @@ export default async function ReportIDPage({ params }: ReportPageProps) {
     // Report not found
     return (
       <div className="bg-white dark:bg-gray-900 text-gray-900 dark:text-white min-h-[calc(100vh-178px)] transition-colors duration-300">
-        <div className="max-w-4xl mx-auto p-4 sm:p-8 pt-12">
+        <div className="max-w-6xl mx-auto p-4 sm:p-8 pt-12">
           <p>Report not found.</p>
         </div>
       </div>
@@ -43,7 +43,7 @@ export default async function ReportIDPage({ params }: ReportPageProps) {
   // 4. Show the report
   return (
     <div className="bg-white dark:bg-gray-900 text-gray-900 dark:text-white min-h-[calc(100vh-178px)] transition-colors duration-300">
-      <div className="max-w-4xl mx-auto p-4 sm:p-8 pt-12">
+      <div className="max-w-6xl mx-auto p-4 sm:p-8 pt-12">
         <h1>Report for ID: {id}</h1>
         <pre>{JSON.stringify(report, null, 2)}</pre>
       </div>
