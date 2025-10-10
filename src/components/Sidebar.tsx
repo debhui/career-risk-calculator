@@ -1,10 +1,9 @@
 // components/Sidebar.tsx
 "use client";
 
-import { Home, ShieldCheck, Clock, Settings, X } from "lucide-react";
+import { Home, ShieldCheck, Clock, Settings, X, ChevronRight } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-
 const sidebarItems = [
   {
     name: "Home",
@@ -55,15 +54,18 @@ export default function Sidebar({ isMobileOpen, onClose }: SidebarProps) {
                 <Link
                   key={`sidebar-${index}`}
                   href={`${item.url}`}
-                  className={`flex flex-row items-center gap-2 space-y-2 py-2 px-4 rounded-lg transition-colors duration-200 ${
+                  className={`flex flex-row items-center justify-between gap-2 py-2 px-4 rounded-lg transition-colors duration-200 ${
                     isActive
                       ? "bg-teal-700 dark:bg-gray-700 text-white font-semibold"
                       : "text-gray-800 dark:text-white hover:bg-teal-300 hover:dark:bg-gray-700 hover:text-gray-600 hover:dark:text-gray-300"
                   }`}
                   onClick={onClose}
                 >
-                  <item.icon size={15} />
-                  {item.name}
+                  <div className="flex gap-2 items-center">
+                    <item.icon size={15} />
+                    {item.name}
+                  </div>
+                  <ChevronRight className="w-4 h-4" />
                 </Link>
               );
             })}

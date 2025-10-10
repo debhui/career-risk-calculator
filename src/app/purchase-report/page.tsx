@@ -43,9 +43,7 @@ export default function PurchaseReportPage() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3 flex justify-between items-center">
           <div className="flex items-center space-x-4">
             {/* Logo or Site Name */}
-            <h1 className="text-xl font-bold text-indigo-600 dark:text-indigo-400">
-              Report Viewer
-            </h1>
+            <h1 className="text-xl font-bold text-teal-600 dark:text-indigo-400">Report Viewer</h1>
           </div>
         </div>
       </header>
@@ -53,9 +51,9 @@ export default function PurchaseReportPage() {
 
       {/* --- CONTENT AREA --- */}
       <main className="max-w-6xl mx-auto p-4 sm:p-8 pt-12">
-        <div className="bg-white dark:bg-gray-850 shadow-2xl rounded-xl p-8 sm:p-12 text-center border border-gray-200 dark:border-gray-700 transition-colors duration-500">
+        <div className="bg-white dark:bg-gray-800 shadow-2xl rounded-xl p-8 sm:p-12 text-center border border-gray-200 dark:border-gray-700 transition-colors duration-500">
           {/* Main Title/Heading */}
-          <h2 className="text-3xl sm:text-4xl font-extrabold text-gray-900 dark:text-white mb-4">
+          <h2 className="text-3xl sm:text-4xl font-extrabold text-teal-600 dark:text-indigo-600 mb-4">
             Access Restricted 🚫
           </h2>
 
@@ -67,7 +65,7 @@ export default function PurchaseReportPage() {
 
           <button
             // onClick={handleGoBack}
-            className="inline-flex items-center px-6 py-3 border border-transparent text-base font-medium rounded-lg shadow-sm text-white bg-indigo-600 hover:bg-indigo-700 dark:bg-indigo-500 dark:hover:bg-indigo-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition-all duration-300 transform hover:scale-[1.02]"
+            className="inline-flex items-center px-6 py-3 border border-transparent text-base font-medium rounded-lg shadow-sm text-white bg-teal-600 dark:bg-indigo-600 hover:bg-teal-700 dark:hover:bg-indigo-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition-all duration-300 transform hover:scale-[1.02]"
           >
             Go Back and Purchase Report
           </button>

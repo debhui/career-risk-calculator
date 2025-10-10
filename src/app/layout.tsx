@@ -44,7 +44,6 @@ export default function RootLayout({
       // const {
       //   data: { session },
       // } = await supabase.auth.getSession();
-      // console.log("session", session);
       // if (session) {
       //   dispatch(setSession);
       // } else {

@@ -27,9 +27,14 @@ type AssessmentItem = {
   education: string;
   age_range: string;
   work_preference: string;
+  report_status: "UNPAID" | "PENDING_PAYMENT" | "PENDING" | "PAID" | "NA"; // Explicitly defined status
+  reports: { id: string; status: string }[] | null;
   // All other fields from the database are included by using 'select("*")'
   [key: string]: any;
 };
+
+// ... (AssessmentDetail and helper components remain the same, but the wrapper is updated in HistoryPage)
+// The rest of the HistoryPage component logic (pagination, fetching, etc.) is preserved.
 
 export default function HistoryPage() {
   const supabase = createSupabaseClient();
@@ -56,19 +61,27 @@ export default function HistoryPage() {
 
   /**
    * Updates the report_status of a specific assessment item in the local state.
-   * This is crucial for updating the button label instantly after payment.
-   * @param {string} reportId - The ID of the assessment to update.
-   * @param {AssessmentItem['report_status']} newStatus - The new status (e.g., 'READY').
    */
   const handleReportStatusChange = useCallback(
     (reportId: string, newStatus: AssessmentItem["report_status"]) => {
       setAssessmentList(prevList =>
-        prevList.map(item => (item.id === reportId ? { ...item, report_status: newStatus } : item))
+        prevList.map(item =>
+          item.id === reportId
+            ? {
+                ...item,
+                report_status: newStatus,
+                reports: item.reports
+                  ? item.reports.map(r => (r.id === reportId ? { ...r, status: newStatus } : r))
+                  : [{ id: reportId, status: newStatus }], // Ensure reports array is updated/created
+              }
+            : item
+        )
       );
     },
     []
   );
 
+  // ... (useEffect for fetching assessments remains unchanged)
   useEffect(() => {
     const fetchAssessments = async () => {
       setIsLoading(true);
@@ -88,7 +101,6 @@ export default function HistoryPage() {
       const to = from + pageSize - 1;
 
       try {
-        // ✅ JOIN assessments with reports to fetch report status
         const {
           data,
           count,
@@ -117,11 +129,13 @@ export default function HistoryPage() {
           setTotalCount(0);
         } else if (data) {
           // ✅ Merge the report status into the assessment item
-          const mappedData = data.map((item: any) => ({
+          const mappedData: AssessmentItem[] = data.map((item: any) => ({
             ...item,
             report_status:
               item.reports && item.reports.length > 0
-                ? (item.reports[0].status ?? "UNPAID").toUpperCase()
+                ? ((
+                    item.reports[0].status ?? "UNPAID"
+                  ).toUpperCase() as AssessmentItem["report_status"])
                 : "NA",
           }));
 
@@ -142,7 +156,6 @@ export default function HistoryPage() {
   }, [supabase, currentPage]);
 
   // --- Conditional Rendering for Loading, Error, and Authentication ---
-
   if (isLoading) {
     return (
       <div className="bg-white dark:bg-gray-900 text-gray-900 dark:text-white min-h-[calc(100vh-178px)] flex items-center justify-center transition-colors duration-300">
@@ -156,7 +169,7 @@ export default function HistoryPage() {
 
   if (error) {
     return (
-      <div className="max-w-6xl mx-auto p-4 sm:p-8 pt-12 text-center text-red-600 dark:text-red-400">
+      <div className="max-w-4xl mx-auto p-4 sm:p-8 pt-12 text-center text-red-600 dark:text-red-400">
         <p>Error: {error}</p>
       </div>
     );
@@ -190,12 +203,6 @@ export default function HistoryPage() {
   return (
     <div className="bg-white dark:bg-gray-900 text-gray-900 dark:text-white min-h-[calc(100vh-178px)] transition-colors duration-300">
       <div className="max-w-6xl mx-auto p-4 sm:p-8 pt-12">
-        {/* <div className="flex justify-between items-center mb-8 border-b border-gray-200 dark:border-gray-700 pb-3">
-          <h1 className="text-3xl font-extrabold flex items-center">
-            <Clock className="w-6 h-6 mr-3 text-green-600 dark:text-green-400" />
-            Assessment History
-          </h1>
-        </div> */}
         <header className="mb-8 border-b border-gray-300 dark:border-gray-700 pb-3 flex justify-between items-center">
           <h1 className="text-3xl font-extrabold text-gray-800 dark:text-white flex items-center">
             <Clock className="w-8 h-8 mr-3 text-teal-600 dark:text-indigo-400" />
@@ -242,26 +249,32 @@ export default function HistoryPage() {
                           Submitted: {new Date(item.submitted_at).toLocaleDateString()}
                         </p>
                       </div>
-                      {isExpanded ? (
-                        <ChevronUp className="w-5 h-5 text-green-600 dark:text-green-400" />
-                      ) : (
-                        <ChevronDown className="w-5 h-5 text-gray-500 dark:text-gray-400" />
-                      )}
+                      <div className="transition-transform duration-300 ease-in-out">
+                        {isExpanded ? (
+                          <ChevronUp className="w-5 h-5 text-green-600 dark:text-green-400" />
+                        ) : (
+                          <ChevronDown className="w-5 h-5 text-gray-500 dark:text-gray-400" />
+                        )}
+                      </div>
                     </div>
 
-                    {/* Detailed Body - Shown only when expanded */}
-                    {isExpanded && (
-                      <>
-                        <AssessmentDetail
-                          item={item}
-                          handleDownload={downloadFile}
-                          isLoading={isLoadingDownload}
-                          user={userData}
-                          onReportStatusChange={handleReportStatusChange} // Pass the status update callback
-                        />
-                        {errorDownload && <p className="text-red-500 text-sm">{errorDownload}</p>}
-                      </>
-                    )}
+                    {/* Detailed Body - Animated transition using max-height */}
+                    <div
+                      className="overflow-hidden transition-all duration-500 ease-in-out"
+                      style={{
+                        // A generous max-height ensures the content slides open fully
+                        maxHeight: isExpanded ? "1000px" : "0",
+                      }}
+                    >
+                      <AssessmentDetail
+                        item={item}
+                        handleDownload={downloadFile}
+                        isLoading={isLoadingDownload}
+                        user={userData}
+                        onReportStatusChange={handleReportStatusChange}
+                      />
+                      {errorDownload && <p className="p-4 text-red-500 text-sm">{errorDownload}</p>}
+                    </div>
                   </li>
                 );
               })}
@@ -275,6 +288,7 @@ export default function HistoryPage() {
 }
 
 // --- DETAIL COMPONENT ---
+// (AssessmentDetail remains the same as its content doesn't need to change, only its wrapper does)
 
 /**
  * Renders the full details of a single assessment item.
@@ -363,7 +377,7 @@ function AssessmentDetail({
         if (verifyRes.ok) {
           console.log("Payment Successful and Verified! Redirecting to report.");
 
-          onReportStatusChange(data.reportId, "READY");
+          onReportStatusChange(data.reportId, "PAID"); // Use PAID if generation is instant/client-side
 
           router.push(`/report/${data.reportId}`);
           router.refresh();
@@ -400,7 +414,7 @@ function AssessmentDetail({
   // --- Logic to determine which button to show ---
   const reportStatus = item.report_status; // e.g., "UNPAID", "PENDING", "PAID", "NA"
   const reportExists = item.reports && item.reports.length > 0; // ensure report exists
-  const reportId = reportExists ? item.reports[0].id : null;
+  const reportId = reportExists ? item.reports![0].id : null;
 
   let buttonProps: {
     label: string;
@@ -410,9 +424,14 @@ function AssessmentDetail({
   } | null = null;
 
   // Define button properties based on report_status
-  if (!reportExists) {
-    // ❌ No report entry exists → hide payment button
-    buttonProps = null;
+  if (!reportExists || reportStatus === "NA") {
+    // ❌ No report entry exists or "NA" state
+    buttonProps = {
+      label: "Processing Submission...",
+      color:
+        "bg-gray-500 dark:bg-gray-600 shadow-gray-500/30 dark:shadow-gray-600/30 opacity-80 cursor-default",
+      isDisabled: true,
+    };
   } else if (reportStatus === "PAID") {
     // ✅ Report paid & ready to view
     buttonProps = {
@@ -439,14 +458,6 @@ function AssessmentDetail({
         "bg-amber-500 dark:bg-amber-500 shadow-amber-500/30 dark:shadow-amber-500/30 opacity-80 cursor-default",
       isDisabled: true,
     };
-  } else if (reportStatus === "NA") {
-    // ⏳ Payment complete but report still generating
-    buttonProps = {
-      label: "Report Generating...",
-      color:
-        "bg-amber-500 dark:bg-amber-500 shadow-amber-500/30 dark:shadow-amber-500/30 opacity-80 cursor-default",
-      isDisabled: true,
-    };
   } else {
     // ❌ Other states (e.g., failed)
     buttonProps = {
@@ -459,7 +470,7 @@ function AssessmentDetail({
   }
 
   return (
-    <div className="p-4 border-t border-gray-200 dark:border-gray-700 bg-gray-100 dark:bg-gray-900 animate-fade-in transition-colors duration-300">
+    <div className="p-4 border-t border-gray-200 dark:border-gray-700 bg-gray-100 dark:bg-gray-900 transition-colors duration-300">
       <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-3">
         Full Submission Details
       </h3>
@@ -542,7 +553,8 @@ function AssessmentDetail({
                 buttonProps.color
               } ${buttonProps.isDisabled ? "opacity-70 cursor-not-allowed" : ""}`}
             >
-              {isProcessingPayment && buttonProps.label.includes("Pay") && (
+              {(isProcessingPayment ||
+                (buttonProps.label === "Report Generating..." && !item.reports)) && (
                 <Loader2 className="w-5 h-5 mr-3 animate-spin" />
               )}
               {buttonProps.label}

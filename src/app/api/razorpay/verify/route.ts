@@ -34,7 +34,6 @@ export async function POST(req: Request) {
       console.error("Report fetch failed:", reportError);
       return NextResponse.json({ error: "Report not found" }, { status: 404 });
     }
-    console.log("#$%35423v 523");
     // 4️⃣ Update report status to "paid"
     const { error: updateError } = await supabase
       .from("reports")

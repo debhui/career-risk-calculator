@@ -8,7 +8,7 @@ import { ShieldHalf, ArrowRight, ArrowLeft, Zap, CheckCircle, Loader2 } from "lu
 import { AssessmentProfile } from "@/components/AssessmentProfile";
 import { CareerAssessment } from "@/components/CareerAssessment";
 import { ResumeUpload } from "@/components/ResumeUpload";
-// import { extractPdf } from "@/lib/actions/extractPdf";
+import { extractPdf } from "@/lib/actions/extractPdf";
 
 interface UserProfile {
   id: string;
@@ -85,19 +85,19 @@ export default function CombinedAssessmentPage() {
   // const [loading, setLoading] = useState(false);
   // const [extractText, setExtractText] = useState("");
 
-  // async function handleExtract(filePath: string) {
-  //   // setLoading(true);
-  //   try {
-  //     const result = await extractPdf(filePath);
-  //     setExtractText(result.text);
-  //     console.log("extract", result.text);
-  //   } catch (err: any) {
-  //     console.error(err);
-  //     setExtractText("Error extracting PDF: " + err.message);
-  //   } finally {
-  //     // setLoading(false);
-  //   }
-  // }
+  async function handleExtract(filePath: string) {
+    // setLoading(true);
+    try {
+      const result = await extractPdf(filePath);
+      // setExtractText(result.text);
+      console.log("extract", result.text);
+    } catch (err: any) {
+      console.error(err);
+      // setExtractText("Error extracting PDF: " + err.message);
+    } finally {
+      // setLoading(false);
+    }
+  }
 
   const REPORT_PRICE_PAISE = 49900;
 
@@ -131,12 +131,12 @@ export default function CombinedAssessmentPage() {
     }
   };
 
-  const handleResumeSuccess = (assementId: string) => {
+  const handleResumeSuccess = (assementId: string, filePath: string) => {
     // filePath: string
     setHasFileUploadedHistorically(true);
     setIsResumeStepCompletedInFlow(true);
     setAssessmentId(assementId);
-    // handleExtract(filePath);
+    handleExtract(filePath);
     setStep(3); // Advance to the Assessment step
   };
 

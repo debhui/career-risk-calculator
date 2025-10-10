@@ -71,8 +71,6 @@ export default function CallbackPage() {
     async (session: Session | null) => {
       // 1. Always update Redux state immediately
       dispatch(setSession(session));
-      console.log("sssesssion");
-      debugger;
 
       // ** FIX: Add a brief wait (50ms) to allow Redux Persist to commit the new state **
       // This addresses the issue of Redux session showing null after redirect.
@@ -117,7 +115,6 @@ export default function CallbackPage() {
     } = supabase.auth.onAuthStateChange((event, session) => {
       // Trigger routing logic for any event that provides a session,
       // or specifically for SIGNED_OUT
-      console.log("session ??", session);
       if (session || event === "SIGNED_OUT") {
         handleSessionAndRouting(session);
       }

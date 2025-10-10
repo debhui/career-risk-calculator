@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { Loader2, Download } from "lucide-react";
 
 type Payment = {
   id: string;
@@ -21,7 +22,7 @@ type Payment = {
 
 const statusMap: Record<string, { label: string; color: string }> = {
   paid: { label: "Paid", color: "text-green-600 bg-green-300" },
-  pending: { label: "Pending", color: "text-yellow-600  bg-yellow-300" },
+  pending: { label: "Pending", color: "text-yellow-600 bg-yellow-300" },
   failed: { label: "Failed", color: "text-red-600 bg-red-300" },
   refunded: { label: "Refunded", color: "text-blue-600 bg-blue-300" },
   processing: { label: "Processing", color: "text-gray-600 bg-gray-300" },
@@ -30,15 +31,9 @@ const statusMap: Record<string, { label: string; color: string }> = {
 export default function PaymentsPage() {
   const [payments, setPayments] = useState<Payment[]>([]);
   const [loading, setLoading] = useState(true);
+  // const [emailing, setEmailing] = useState<string | null>(null);
 
   useEffect(() => {
-    // fetch("/api/payments", {
-    //   method: "GET",
-    //   headers: {
-    //     // Authorization: `Bearer ${localStorage.getItem("supabase.auth.token")}`,
-    //     "Content-Type": "application/json",
-    //   },
-    // });
     fetch("/api/payments")
       .then(res => res.json())
       .then(data => {
@@ -47,7 +42,41 @@ export default function PaymentsPage() {
       });
   }, []);
 
-  if (loading) return <p>Loading payments...</p>;
+  const handleDownloadReceipt = async (id: string) => {
+    const res = await fetch(`/api/payments/receipt/${id}`);
+    if (!res.ok) {
+      alert("Failed to generate receipt");
+      return;
+    }
+    const blob = await res.blob();
+    const url = window.URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = `receipt-${id}.pdf`;
+    a.click();
+    window.URL.revokeObjectURL(url);
+  };
+
+  // const handleEmailReceipt = async (id: string) => {
+  //   try {
+  //     setEmailing(id);
+  //     const res = await fetch(`/api/payments/receipt/email/${id}`, { method: "POST" });
+  //     if (!res.ok) throw new Error("Email failed");
+  //     alert("Receipt sent to your email!");
+  //   } catch (err) {
+  //     alert("Failed to send email receipt");
+  //   } finally {
+  //     setEmailing(null);
+  //   }
+  // };
+
+  if (loading)
+    return (
+      <div className="flex items-center space-x-3 text-lg font-medium text-gray-700 dark:text-gray-300">
+        <Loader2 className="w-8 h-8 mx-auto mb-4 animate-spin text-green-600 dark:text-green-400" />
+        <p>Loading payments...</p>
+      </div>
+    );
 
   if (payments.length === 0) {
     return (
@@ -58,26 +87,14 @@ export default function PaymentsPage() {
     );
   }
 
-  // const razorpayDashboardBase = "https://dashboard.razorpay.com/app";
-
   return (
-    <div className="max-w-4xl mx-auto p-0 md:p-6">
-      <h1 className="text-2xl font-bold mb-6">Your Payments</h1>
-
+    <div className="max-w-4xl mx-auto">
       <div className="space-y-4">
         {payments.map(p => {
           const status = statusMap[p.status] || {
             label: p.status,
             color: "text-green-600 bg-green-300",
           };
-
-          // const orderLink = p.razorpay_order_id
-          //   ? `${razorpayDashboardBase}/orders/${p.razorpay_order_id}`
-          //   : null;
-
-          // const paymentLink = p.razorpay_payment_id
-          //   ? `${razorpayDashboardBase}/payments/${p.razorpay_payment_id}`
-          //   : null;
 
           return (
             <div
@@ -90,47 +107,11 @@ export default function PaymentsPage() {
                   {status.label}
                 </span>
               </div>
-
               <p className="text-sm text-gray-500">{new Date(p.created_at).toLocaleString()}</p>
-
               <div className="mt-2 space-y-1 text-sm">
-                {p.razorpay_order_id && (
-                  <p>
-                    Order ID:{" "}
-                    {/* {orderLink ? (
-                      <a
-                        href={orderLink}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="text-blue-600 underline hover:text-blue-800"
-                      >
-                        {p.razorpay_order_id}
-                      </a>
-                    ) : ( */}
-                    {p.razorpay_order_id}
-                    {/* )} */}
-                  </p>
-                )}
-
-                {p.razorpay_payment_id && (
-                  <p>
-                    Payment ID:{" "}
-                    {/* {paymentLink ? (
-                      <a
-                        href={paymentLink}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="text-blue-600 underline hover:text-blue-800"
-                      >
-                        {p.razorpay_payment_id}
-                      </a>
-                    ) : ( */}
-                    {p.razorpay_payment_id}
-                    {/* )} */}
-                  </p>
-                )}
+                {p.razorpay_order_id && <p>Order ID: {p.razorpay_order_id}</p>}
+                {p.razorpay_payment_id && <p>Payment ID: {p.razorpay_payment_id}</p>}
               </div>
-
               {p.report && (
                 <div className="mt-3 text-sm text-gray-500">
                   <p>
@@ -152,6 +133,36 @@ export default function PaymentsPage() {
                       )}
                     </p>
                   )}
+                </div>
+              )}
+
+              {p.status === "success" && (
+                <div className="mt-4 flex gap-3">
+                  <button
+                    onClick={() => handleDownloadReceipt(p.id)}
+                    className="flex items-center gap-2 px-3 py-1.5 text-sm font-medium bg-green-600 text-white rounded-md hover:bg-green-700"
+                  >
+                    <Download className="w-4 h-4" />
+                    Download & Email Receipt
+                  </button>
+
+                  {/* <button
+                    onClick={() => handleEmailReceipt(p.id)}
+                    disabled={emailing === p.id}
+                    className="flex items-center gap-2 px-3 py-1.5 text-sm font-medium bg-blue-600 text-white rounded-md hover:bg-blue-700 disabled:opacity-50"
+                  >
+                    {emailing === p.id ? (
+                      <>
+                        <Loader2 className="w-4 h-4 animate-spin" />
+                        Sending...
+                      </>
+                    ) : (
+                      <>
+                        <Mail className="w-4 h-4" />
+                        Email Receipt
+                      </>
+                    )}
+                  </button> */}
                 </div>
               )}
             </div>

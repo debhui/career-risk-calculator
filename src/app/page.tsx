@@ -7,7 +7,7 @@ import {
   ShieldHalf,
   GanttChart,
   TrendingUp,
-  User,
+  User as UserIcon,
   Loader2,
   Settings,
   LucideIcon,
@@ -16,6 +16,7 @@ import Link from "next/link";
 import Login from "@/components/Login";
 import { createSupabaseClient } from "@/lib/supabase/browser";
 import { useRouter } from "next/navigation";
+import { User } from "@supabase/supabase-js";
 // --- Quick Link Card Data ---
 const quickLinks = [
   {
@@ -38,7 +39,7 @@ const quickLinks = [
     title: "Manage Profile",
     description: "Update your personal and professional information.",
     href: "/profile",
-    icon: User,
+    icon: UserIcon,
     color: "text-yellow-400",
     bg: "bg-yellow-600/10 hover:bg-yellow-600/20",
   },
@@ -79,7 +80,7 @@ const QuickLinkCard: React.FC<QuickLinkCardProps> = ({
       <h3 className="text-xl font-semibold text-gray-900 dark:text-white mb-2">{title}</h3>
       <p className="text-sm text-gray-600 dark:text-gray-400">{description}</p>
     </div>
-    <div className="mt-4 flex items-center text-sm font-medium text-indigo-500 dark:text-indigo-400">
+    <div className="mt-4 flex items-center text-sm font-medium text-teal-500 dark:text-indigo-400">
       Go to {title}
       <ArrowRight className="w-4 h-4 ml-2 transition-transform group-hover:translate-x-1" />
     </div>
@@ -91,6 +92,7 @@ export default function CareerRiskCalculatorHomePage() {
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const supabase = createSupabaseClient();
   const router = useRouter();
+  const [userData, setUserData] = useState<User | null>(null);
   // Effect to apply theme class and persist to localStorage whenever theme state changes
 
   useEffect(() => {
@@ -104,6 +106,7 @@ export default function CareerRiskCalculatorHomePage() {
         await new Promise(resolve => setTimeout(resolve, 200));
 
         if (user) {
+          setUserData(user);
           const { data: profile } = await supabase
             .from("profiles")
             .select("consent_accepted, onboarding_completed")
@@ -176,7 +179,7 @@ export default function CareerRiskCalculatorHomePage() {
 
             {/* Quick Links Grid */}
             <section className="mt-8">
-              <h2 className="text-2xl font-bold text-indigo-500 dark:text-indigo-400 mb-6">
+              <h2 className="text-2xl font-bold text-teal-500 dark:text-indigo-400 mb-6">
                 Quick Actions
               </h2>
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
@@ -189,7 +192,7 @@ export default function CareerRiskCalculatorHomePage() {
             {/* Status/User Info Panel */}
             <section className="mt-12 p-6 bg-gray-100 dark:bg-gray-800 rounded-xl shadow-xl border border-gray-300 dark:border-gray-700/50 transition-colors duration-300">
               <div className="flex items-center">
-                <ShieldHalf className="w-8 h-8 text-indigo-500 dark:text-indigo-400 mr-4" />
+                <ShieldHalf className="w-8 h-8 text-teal-500 dark:text-indigo-400 mr-4" />
                 <h3 className="text-xl font-semibold text-gray-900 dark:text-white">
                   Current Status Overview
                 </h3>
@@ -208,7 +211,7 @@ export default function CareerRiskCalculatorHomePage() {
                 <div className="p-3 bg-gray-200 dark:bg-gray-700 rounded-lg transition-colors duration-300">
                   <p className="text-gray-500 dark:text-gray-400">User ID:</p>
                   <p className="font-mono text-xs text-gray-800 dark:text-white break-all">
-                    Checking...
+                    {userData?.id}
                   </p>
                 </div>
               </div>
